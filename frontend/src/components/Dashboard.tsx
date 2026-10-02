@@ -1,6 +1,6 @@
 import { WeeklyTrack } from './WeeklyTrack.tsx';
 import { Target, TrendingUp, Zap, Clock } from 'lucide-react';
-import './Dashboard.css';
+import '../styles/Dashboard.css';
 
 export function Dashboard() {
   return (

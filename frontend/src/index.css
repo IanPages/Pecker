@@ -1,14 +1,42 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: #F5F3EE;
+  --color-text-main: #353A36;
+  --color-progress: #A8BDAA;
+  --color-freetime: #E8D8C4;
+  --color-study: #C8B9D8;
+  --color-outdoor: #D9A89C;
+  --color-progress-text: #DCE7DF;
+}
+
 :root {
-  --bg-primary: #0f111a;
-  --bg-surface: #1a1d27;
-  --bg-hover: #262a38;
-  --brand-color: #8b5cf6;
-  --brand-color-alpha: rgba(139, 92, 246, 0.15);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --border-color: #2e3345;
+  --bg-primary: var(--color-background);
+  --bg-surface: #FFFFFF;
+  --bg-hover: #E8E4DB;
+  --brand-color: var(--color-progress);
+  --brand-color-alpha: rgba(168, 189, 170, 0.15);
+  --text-primary: var(--color-text-main);
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
+}
+
+:root.dark {
+  /* Tailwind Palette Overrides for Dark Mode */
+  --color-background: #121413;
+  --color-text-main: #F5F3EE;
+  --color-progress: #8DA690;
+  --color-freetime: #D5BCA2;
+  --color-study: #B39FD1;
+  --color-outdoor: #CF8E7F;
+  --color-progress-text: #2A332C;
+
+  /* Custom UI Variables Overrides */
+  --bg-surface: #1C1E1D;
+  --bg-hover: #292B2A;
+  --brand-color-alpha: rgba(141, 166, 144, 0.15);
+  --text-secondary: #9AA09C;
+  --border-color: #353A36;
 }
 
 * {
@@ -37,10 +65,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--brand-color);
 }
