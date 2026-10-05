@@ -1,54 +1,51 @@
 @import "tailwindcss";
 
 @theme {
+  /* ── Core palette ── */
   --color-background: #F5F3EE;
   --color-text-main: #353A36;
+
+  /* ── Surface / UI colours ── */
+  --color-surface: #FFFFFF;
+  --color-hover: #E8E4DB;
+  --color-secondary: #6B7280;
+  --color-border: #E5E7EB;
+
+  /* ── Brand / Category colours ── */
   --color-progress: #80b886;
+  --color-progress-text: #DCE7DF;
   --color-freetime: #E8D8C4;
   --color-study: #C8B9D8;
   --color-outdoor: #D9A89C;
-  --color-progress-text: #DCE7DF;
 }
 
-:root {
-  --bg-primary: var(--color-background);
-  --bg-surface: #FFFFFF;
-  --bg-hover: #E8E4DB;
-  --brand-color: var(--color-progress);
-  --brand-color-alpha: rgba(168, 189, 170, 0.15);
-  --text-primary: var(--color-text-main);
-  --text-secondary: #6B7280;
-  --border-color: #E5E7EB;
-}
-
+/* Dark mode — overrides the same --color-* vars so Tailwind classes update automatically */
 :root.dark {
-  /* Tailwind Palette Overrides for Dark Mode */
   --color-background: #121413;
   --color-text-main: #F5F3EE;
+  --color-surface: #1C1E1D;
+  --color-hover: #292B2A;
+  --color-secondary: #9AA09C;
+  --color-border: #353A36;
   --color-progress: #8DA690;
+  --color-progress-text: #2A332C;
   --color-freetime: #D5BCA2;
   --color-study: #B39FD1;
   --color-outdoor: #CF8E7F;
-  --color-progress-text: #2A332C;
-
-  /* Custom UI Variables Overrides */
-  --bg-surface: #1C1E1D;
-  --bg-hover: #292B2A;
-  --brand-color-alpha: rgba(141, 166, 144, 0.15);
-  --text-secondary: #9AA09C;
-  --border-color: #353A36;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 body {
   margin: 0;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--color-background);
+  color: var(--color-text-main);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -65,10 +62,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-color);
+  background: var(--color-progress);
 }
