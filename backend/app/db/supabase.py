@@ -6,7 +6,7 @@ def get_supabase_client() -> Client:
         raise ValueError("Supabase credentials are not set in environment variables.")
     return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
 
-# You can import this instance in your routers/services
+
 try:
     supabase = get_supabase_client()
 except ValueError:
