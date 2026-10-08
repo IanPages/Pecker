@@ -6,6 +6,7 @@ from uuid import UUID
 class CategoryCreate(BaseModel):
     name: str=Field(min_length=1,max_length=80)
     color: str=Field(min_length=6,max_length=6)
+    created_at: Optional[datetime]=None
 
 class CategoryResponse(CategoryCreate):
     id: UUID
