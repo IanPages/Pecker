@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
-import { Schedule } from './components/Schedule';
+import { Layout } from './feature/dashboard/components/Layout';
+import { Dashboard } from './feature/dashboard/components/Dashboard';
+import { Schedule } from './feature/schedule/components/Schedule';
 
 function App() {
   return (
