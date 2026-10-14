@@ -14,7 +14,7 @@ interface Task {
     dayIdx: number;      // 0 = Mon … 4 = Fri
 }
 
-// ── Constants ──────────────────────────────────────────────────────────────
+// MOCKED DATA TILL FETCH FROM BACKEND
 const HOUR_H = 56; // px per hour
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0 → 23
 
