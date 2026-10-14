@@ -1,16 +1,19 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { Home, Calendar, Target, Settings, PieChart, Activity, User, Sun, Moon, Menu, X } from 'lucide-react';
+import { Home, LogOut, Calendar, Target, Settings, PieChart, Activity, User, Sun, Moon, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { logoutUser } from '../../auth/services/authApi';
+import { useAuth } from '../../auth/hooks/useAuth';
+
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const NAV_LINKS = [
-  { to: '/',          icon: Home,     label: 'Dashboard'  },
-  { to: '/schedule',  icon: Calendar, label: 'Schedule'   },
-  { to: '/goals',     icon: Target,   label: 'Goals'      },
-  { to: '/analytics', icon: PieChart, label: 'Analytics'  },
+  { to: '/', icon: Home, label: 'Dashboard' },
+  { to: '/schedule', icon: Calendar, label: 'Schedule' },
+  { to: '/goals', icon: Target, label: 'Goals' },
+  { to: '/analytics', icon: PieChart, label: 'Analytics' },
 ];
 
 export function Layout({ children }: LayoutProps) {
@@ -24,6 +27,8 @@ export function Layout({ children }: LayoutProps) {
     return false;
   });
 
+  const { user } = useAuth();
+
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
@@ -34,6 +39,10 @@ export function Layout({ children }: LayoutProps) {
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
+
+  const handleLogout = async () => {
+    await logoutUser();
+  };
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
@@ -113,32 +122,56 @@ export function Layout({ children }: LayoutProps) {
             </li>
 
             {/* Settings */}
+            {user && (
+              <li>
+                <Link
+                  to="/settings"
+                  className={[
+                    'flex items-center gap-3 px-4 py-3 rounded-lg w-full',
+                    'font-medium text-sm no-underline transition-all duration-200',
+                    isActive('/settings')
+                      ? 'bg-progress/15 text-progress'
+                      : 'text-secondary hover:bg-hover hover:text-text-main',
+                  ].join(' ')}
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  <Settings className="w-5 h-5 shrink-0" />
+                  Settings
+                </Link>
+              </li>
+            )}
+
+            {/* User profile */}
             <li>
               <Link
-                to="/settings"
+                to={user ? "/profile" : "/login"}
                 className={[
                   'flex items-center gap-3 px-4 py-3 rounded-lg w-full',
                   'font-medium text-sm no-underline transition-all duration-200',
-                  isActive('/settings')
+                  isActive(user ? "/profile" : "/login")
                     ? 'bg-progress/15 text-progress'
                     : 'text-secondary hover:bg-hover hover:text-text-main',
                 ].join(' ')}
                 onClick={() => setIsSidebarOpen(false)}
               >
-                <Settings className="w-5 h-5 shrink-0" />
-                Settings
+                <User className="w-5 h-5 shrink-0" />
+                {user ? 'Profile' : 'Login | Register'}
               </Link>
             </li>
 
-            {/* User profile */}
-            <li className="flex items-center gap-3 px-4 py-3 mt-1 rounded-lg cursor-pointer
-                           text-sm font-medium text-secondary transition-all duration-200
-                           hover:bg-hover hover:text-text-main">
-              <div className="w-8 h-8 rounded-full bg-progress text-white flex items-center justify-center shrink-0">
-                <User className="w-4 h-4" />
-              </div>
-              <span>Profile</span>
-            </li>
+            {/* Logged User | Logout */}
+            {user && (
+              <li
+                onClick={() => logoutUser()}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer
+                         text-sm font-medium text-secondary transition-all duration-200
+                         hover:bg-hover hover:text-text-main"
+              >
+                {<LogOut className="w-5 h-5 shrink-0" />}
+                Logout
+              </li>
+            )}
+
           </ul>
         </div>
       </nav>
@@ -146,30 +179,7 @@ export function Layout({ children }: LayoutProps) {
       {/* ── Main content ── */}
       <main className="flex-1 flex flex-col overflow-hidden">
 
-        {/* Top bar */}
-        <header className="h-20 px-8 flex items-center justify-between
-                           bg-background border-b border-border backdrop-blur-md shrink-0">
-          <div className="flex items-center gap-4">
-            {/* Hamburger — mobile only */}
-            <button
-              className="md:hidden bg-transparent border-none text-text-main cursor-pointer p-2 -ml-2"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <h2 className="text-2xl font-semibold m-0">Overview</h2>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              className="bg-progress text-white border-none px-5 py-2.5 rounded-lg
-                         font-semibold text-sm cursor-pointer transition-all duration-200
-                         hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(128,184,134,0.4)]"
-            >
-              + Add Entry
-            </button>
-          </div>
-        </header>
 
         {/* Page content */}
         <div className="flex-1 p-8 overflow-y-auto">

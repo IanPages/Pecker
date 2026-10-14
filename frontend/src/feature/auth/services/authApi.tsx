@@ -1,14 +1,14 @@
 import type { RegUser, LogUser } from "../types/authUsers"
 import { supabase } from "./supabase"
 
-export async function registerUser(user: RegUser) {
+export async function registerUser(email: string, password: string, username: string) {
 
     const { data, error } = await supabase.auth.signUp({
-        email: user.email,
-        password: user.password,
+        email: email,
+        password: password,
         options: {
             data: {
-                username: user.username
+                username: username
             }
         }
     })
@@ -25,11 +25,11 @@ export async function registerUser(user: RegUser) {
     return data
 }
 
-export async function loginUser(user: LogUser) {
+export async function loginUser(email: string, password: string) {
 
     const { data, error } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: user.password,
+        email: email,
+        password: password,
     })
 
     if (error) {

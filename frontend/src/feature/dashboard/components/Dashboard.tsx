@@ -1,5 +1,6 @@
-import { WeeklyTrack } from './WeeklyTrack.tsx';
+import { WeeklyTrack } from './WeeklyTrack';
 import { Target, TrendingUp, Zap, Clock } from 'lucide-react';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 const STATS = [
   {
@@ -27,13 +28,16 @@ const STATS = [
 
 const ACTIVITIES = [
   { label: 'Completed workout', time: '2 hours ago', dotClass: 'bg-emerald-500' },
-  { label: 'Read 20 pages',     time: '5 hours ago', dotClass: 'bg-blue-500'    },
-  { label: 'Meditation',        time: 'Yesterday',   dotClass: 'bg-amber-500'   },
+  { label: 'Read 20 pages', time: '5 hours ago', dotClass: 'bg-blue-500' },
+  { label: 'Meditation', time: 'Yesterday', dotClass: 'bg-amber-500' },
 ];
 
 export function Dashboard() {
+
+  const { user } = useAuth();
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 py-8">
 
       {/* ── Welcome ── */}
       <div className="flex justify-between items-end">
@@ -46,7 +50,7 @@ export function Dashboard() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Hello, User! 👋
+            Hello, {user?.email || "Guest"}!
           </h1>
           <p className="text-secondary text-lg m-0">
             Here's what's happening with your goals today.
