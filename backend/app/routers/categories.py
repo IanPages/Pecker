@@ -49,7 +49,11 @@ async def create_category(category_data: CategoryCreate):
 
 @router.put("/{id}",response_model=dict)
 async def update_category(id:UUID, category_data: CategoryUpdate):
-    json_schema = category_data.model_dump(mode="json")
+    json_schema = category_data.model_dump(mode="json", exclude_unset=True)
+
+    if not json_schema:                                                                                                                                  
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No valid data provided to update") 
+            
     query = supabase.table("categories").update(json_schema).eq("id", id)
     response = query.execute()
     
