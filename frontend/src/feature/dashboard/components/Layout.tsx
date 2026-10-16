@@ -179,7 +179,20 @@ export function Layout({ children }: LayoutProps) {
       {/* ── Main content ── */}
       <main className="flex-1 flex flex-col overflow-hidden">
 
-
+        {/* Mobile top bar — hamburger button */}
+        <div className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-border bg-surface shrink-0">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="bg-transparent border-none text-text-main cursor-pointer p-1 rounded-lg hover:bg-hover transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2 text-base font-bold text-progress">
+            <Activity className="w-5 h-5" />
+            <span>Pecker</span>
+          </div>
+        </div>
 
         {/* Page content */}
         <div className="flex-1 p-8 overflow-y-auto">

@@ -1,53 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, X, Clock } from 'lucide-react';
+import type { Task } from '../types/Task';
+import { HOUR_H, HOURS, getWeekStart, getWeekDays, isoToHours, fmtHours, getColIdx, } from '../utils/calendarUtils';
+import { weeklyFetch } from '../services/CalendarWeeklyFetch';
+import { useAuth } from '../../auth/hooks/useAuth';
 
-// ── Types ──────────────────────────────────────────────────────────────────
-interface Task {
-    id: number;
-    title: string;
-    notes: string;
-    color: string;       // Tailwind bg class
-    textColor: string;   // Tailwind text class
-    ringColor: string;   // Tailwind ring class
-    startHour: number;   // 0–23
-    durationH: number;   // hours
-    dayIdx: number;      // 0 = Mon … 4 = Fri
-}
-
-// MOCKED DATA TILL FETCH FROM BACKEND
-const HOUR_H = 56; // px per hour
-const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0 → 23
-
-const WEEK_DAYS = [
-    { short: 'Mon', label: 'Monday', date: '05', month: 'Oct' },
-    { short: 'Tue', label: 'Tuesday', date: '06', month: 'Oct' },
-    { short: 'Wed', label: 'Wednesday', date: '07', month: 'Oct' },
-    { short: 'Thu', label: 'Thursday', date: '08', month: 'Oct' },
-    { short: 'Fri', label: 'Friday', date: '09', month: 'Oct' },
-];
-
-const TODAY_IDX = 0;
-
-const INITIAL_TASKS: Task[] = [
-    { id: 1, title: 'Meeting with HR · DISA', notes: 'Discuss onboarding and team structure.', color: 'bg-freetime', textColor: 'text-text-main', ringColor: 'ring-freetime', startHour: 9, durationH: 1, dayIdx: 0 },
-    { id: 2, title: 'Frontend development', notes: 'Work on the Pecker dashboard UI.', color: 'bg-study', textColor: 'text-text-main', ringColor: 'ring-study', startHour: 10, durationH: 2, dayIdx: 0 },
-    { id: 3, title: 'Read a book', notes: 'Continue "Atomic Habits" — chapter 4.', color: 'bg-study', textColor: 'text-text-main', ringColor: 'ring-study', startHour: 12, durationH: 1, dayIdx: 0 },
-    { id: 4, title: 'Gym session', notes: 'Leg day: squats, lunges, leg press.', color: 'bg-progress', textColor: 'text-white', ringColor: 'ring-progress', startHour: 14, durationH: 1, dayIdx: 0 },
-    { id: 5, title: 'Lunch', notes: 'Meal prep bowl from Sunday batch cook.', color: 'bg-outdoor', textColor: 'text-text-main', ringColor: 'ring-outdoor', startHour: 13, durationH: 1, dayIdx: 0 },
-    { id: 6, title: 'Team standup', notes: 'Daily sync — 15 min.', color: 'bg-freetime', textColor: 'text-text-main', ringColor: 'ring-freetime', startHour: 9, durationH: 1, dayIdx: 1 },
-    { id: 7, title: 'Code review', notes: 'Review PRs from the backend team.', color: 'bg-study', textColor: 'text-text-main', ringColor: 'ring-study', startHour: 11, durationH: 2, dayIdx: 2 },
-    { id: 8, title: 'Evening run', notes: '5k easy pace around the park.', color: 'bg-progress', textColor: 'text-white', ringColor: 'ring-progress', startHour: 18, durationH: 1, dayIdx: 3 },
-];
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-const fmt = (h: number) => `${String(h).padStart(2, '0')}:00`;
-
-// ── Component ──────────────────────────────────────────────────────────────
 export function Calendar() {
-    const [tasks] = useState<Task[]>(INITIAL_TASKS);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [weekOffset, setWeekOffset] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const { user } = useAuth()
+
+    // Derived from weekOffset – recalculates on every change
+    const weekStart = getWeekStart(weekOffset);
+    const weekDays = getWeekDays(weekStart);
+
+    const weekLabel = (() => {
+        if (weekOffset === 0) return 'This week';
+        const first = weekDays[0];
+        const last = weekDays[6];
+        return `${first.month} ${first.date} – ${last.date}, ${last.year}`;
+    })();
 
     // Scroll to 07:00 on mount
     useEffect(() => {
@@ -55,6 +29,14 @@ export function Calendar() {
             scrollRef.current.scrollTop = 7 * HOUR_H;
         }
     }, []);
+
+    useEffect(() => {
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weeklyFetch(user?.id, weekStart, weekEnd).then((data) => {
+            setTasks(data);
+        })
+    }, [weekOffset, user?.id])
 
     const handleSelect = (task: Task) =>
         setSelectedTask(prev => (prev?.id === task.id ? null : task));
@@ -67,7 +49,7 @@ export function Calendar() {
                 <div>
                     <h2 className="text-2xl font-bold text-text-main m-0 leading-tight">Schedule</h2>
                     <p className="text-secondary text-sm m-0 mt-0.5">
-                        {weekOffset === 0 ? 'Oct 5 – 9, 2026' : `Week ${weekOffset > 0 ? '+' : ''}${weekOffset}`}
+                        {weekLabel}
                     </p>
                 </div>
 
@@ -110,11 +92,11 @@ export function Calendar() {
                 {/* Day headers */}
                 <div
                     className="grid border-b border-border shrink-0 bg-surface"
-                    style={{ gridTemplateColumns: '52px repeat(5, 1fr)' }}
+                    style={{ gridTemplateColumns: '52px repeat(7, 1fr)' }}
                 >
                     <div className="py-3 border-r border-border" /> {/* gutter */}
-                    {WEEK_DAYS.map((day, i) => {
-                        const isToday = i === TODAY_IDX;
+                    {weekDays.map((day) => {
+                        const isToday = day.isToday;
                         return (
                             <div
                                 key={day.short}
@@ -141,7 +123,7 @@ export function Calendar() {
                     <div
                         className="grid"
                         style={{
-                            gridTemplateColumns: '52px repeat(5, 1fr)',
+                            gridTemplateColumns: '52px repeat(7, 1fr)',
                             height: 24 * HOUR_H,
                         }}
                     >
@@ -154,16 +136,16 @@ export function Calendar() {
                                     style={{ top: h * HOUR_H, height: HOUR_H }}
                                 >
                                     <span className="text-[10px] text-secondary/70 font-medium -translate-y-3">
-                                        {fmt(h)}
+                                        {fmtHours(h)}
                                     </span>
                                 </div>
                             ))}
                         </div>
 
                         {/* ── Day columns ── */}
-                        {WEEK_DAYS.map((day, colIdx) => {
-                            const isToday = colIdx === TODAY_IDX;
-                            const colTasks = tasks.filter(t => t.dayIdx === colIdx);
+                        {weekDays.map((day, colIdx) => {
+                            const isToday = day.isToday;
+                            const colTasks = tasks.filter(t => t.date === day.isoDate);
 
                             return (
                                 <div
@@ -190,32 +172,38 @@ export function Calendar() {
                                     ))}
 
                                     {/* Tasks */}
-                                    {colTasks.map(task => (
-                                        <button
-                                            key={task.id}
-                                            onClick={() => handleSelect(task)}
-                                            className={[
-                                                'absolute left-1 right-1 rounded-xl px-2.5 py-1.5 text-left',
-                                                'border-none cursor-pointer transition-all duration-200 overflow-hidden',
-                                                'hover:scale-[1.02] hover:shadow-lg hover:z-10',
-                                                task.color,
-                                                selectedTask?.id === task.id
-                                                    ? `ring-2 ${task.ringColor} scale-[1.02] shadow-lg z-10`
-                                                    : 'opacity-90 hover:opacity-100',
-                                            ].join(' ')}
-                                            style={{
-                                                top: task.startHour * HOUR_H + 2,
-                                                height: task.durationH * HOUR_H - 4,
-                                            }}
-                                        >
-                                            <div className={`text-[10px] font-semibold opacity-60 ${task.textColor}`}>
-                                                {fmt(task.startHour)} – {fmt(task.startHour + task.durationH)}
-                                            </div>
-                                            <div className={`text-xs font-semibold mt-0.5 leading-snug line-clamp-2 ${task.textColor}`}>
-                                                {task.title}
-                                            </div>
-                                        </button>
-                                    ))}
+                                    {colTasks.map(task => {
+                                        const startH = isoToHours(task.start_hour);
+                                        const endH = isoToHours(task.finish_hour);
+                                        const durH = endH - startH;
+                                        const isSelected = selectedTask?.id === task.id;
+                                        return (
+                                            <button
+                                                key={task.id}
+                                                onClick={() => handleSelect(task)}
+                                                className={[
+                                                    'absolute left-1 right-1 rounded-xl px-2.5 py-1.5 text-left',
+                                                    'border-none cursor-pointer transition-all duration-200 overflow-hidden',
+                                                    'hover:scale-[1.02] hover:shadow-lg hover:z-10',
+                                                    'bg-progress text-white',
+                                                    isSelected
+                                                        ? 'ring-2 ring-progress scale-[1.02] shadow-lg z-10'
+                                                        : 'opacity-90 hover:opacity-100',
+                                                ].join(' ')}
+                                                style={{
+                                                    top: startH * HOUR_H + 2,
+                                                    height: Math.max(durH * HOUR_H - 4, 20),
+                                                }}
+                                            >
+                                                <div className="text-[10px] font-semibold opacity-60">
+                                                    {fmtHours(startH)} – {fmtHours(endH)}
+                                                </div>
+                                                <div className="text-xs font-semibold mt-0.5 leading-snug line-clamp-2">
+                                                    {task.name}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             );
                         })}
@@ -224,46 +212,51 @@ export function Calendar() {
             </div>
 
             {/* ── Task detail panel ── */}
-            {selectedTask && (
-                <div className="bg-surface border border-border rounded-2xl p-5 shrink-0
-                        shadow-sm flex flex-col gap-4">
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${selectedTask.color}`} />
-                            <div>
-                                <h3 className="text-base font-semibold text-text-main m-0 leading-tight">
-                                    {selectedTask.title}
-                                </h3>
-                                <div className="flex items-center gap-1 mt-0.5 text-secondary text-xs">
-                                    <Clock className="w-3 h-3" />
-                                    <span>
-                                        {fmt(selectedTask.startHour)} – {fmt(selectedTask.startHour + selectedTask.durationH)}
-                                        {' · '}
-                                        {WEEK_DAYS[selectedTask.dayIdx].label}
-                                    </span>
+            {selectedTask && (() => {
+                const startH = isoToHours(selectedTask.start_hour);
+                const endH = isoToHours(selectedTask.finish_hour);
+                const colIdx = getColIdx(selectedTask.date, weekDays);
+                return (
+                    <div className="bg-surface border border-border rounded-2xl p-5 shrink-0
+                            shadow-sm flex flex-col gap-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-progress" />
+                                <div>
+                                    <h3 className="text-base font-semibold text-text-main m-0 leading-tight">
+                                        {selectedTask.name}
+                                    </h3>
+                                    <div className="flex items-center gap-1 mt-0.5 text-secondary text-xs">
+                                        <Clock className="w-3 h-3" />
+                                        <span>
+                                            {fmtHours(startH)} – {fmtHours(endH)}
+                                            {' · '}
+                                            {colIdx >= 0 ? weekDays[colIdx].label : selectedTask.date}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+                            <button
+                                onClick={() => setSelectedTask(null)}
+                                className="text-secondary hover:text-text-main bg-transparent border-none
+                             cursor-pointer p-1 rounded-lg hover:bg-hover transition-colors duration-150"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
                         </div>
-                        <button
-                            onClick={() => setSelectedTask(null)}
-                            className="text-secondary hover:text-text-main bg-transparent border-none
-                         cursor-pointer p-1 rounded-lg hover:bg-hover transition-colors duration-150"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
 
-                    <textarea
-                        defaultValue={selectedTask.notes}
-                        rows={2}
-                        placeholder="Add notes…"
-                        className="bg-background border border-border rounded-xl px-4 py-3 text-sm
-                       text-text-main resize-none outline-none w-full
-                       focus:ring-2 focus:ring-progress/40 focus:border-progress/40
-                       transition-all duration-200 placeholder:text-secondary/50"
-                    />
-                </div>
-            )}
+                        <textarea
+                            defaultValue={selectedTask.notes}
+                            rows={2}
+                            placeholder="Add notes…"
+                            className="bg-background border border-border rounded-xl px-4 py-3 text-sm
+                           text-text-main resize-none outline-none w-full
+                           focus:ring-2 focus:ring-progress/40 focus:border-progress/40
+                           transition-all duration-200 placeholder:text-secondary/50"
+                        />
+                    </div>
+                );
+            })()}
         </div>
     );
 }
