@@ -39,32 +39,27 @@ export function LogReg() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="min-h-full flex items-center justify-center px-1 py-6">
             <div
-                className="w-full max-w-md bg-surface border border-border rounded-2xl p-8
-                           shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-200"
+                className="w-full max-w-md bg-surface rounded-3xl p-8 md:p-10"
             >
 
                 {/* Título */}
-                <h2
-                    className="text-3xl font-bold text-center mb-8"
-                    style={{
-                        background: 'linear-gradient(135deg, var(--color-text-main) 0%, var(--color-progress) 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    {isLogin ? 'Login' : 'Register'}
-                </h2>
+                <h1 className="text-5xl font-extrabold leading-none mb-2">
+                    {isLogin ? 'Welcome back.' : 'Join Pecker.'}
+                </h1>
+                <p className="text-secondary mb-8">
+                    {isLogin ? 'Log in to see your week.' : 'Create an account to start tracking.'}
+                </p>
 
                 {/* Mensajes de Error o Éxito */}
                 {error && (
-                    <div className="mb-4 p-3 rounded-xl bg-outdoor/20 text-outdoor border border-outdoor/30 text-sm font-medium">
+                    <div className="mb-4 p-3 rounded-xl bg-outdoor/25 text-text-main text-sm font-medium">
                         {error}
                     </div>
                 )}
                 {successMsg && (
-                    <div className="mb-4 p-3 rounded-xl bg-progress/15 text-progress border border-progress/30 text-sm font-medium">
+                    <div className="mb-4 p-3 rounded-xl bg-progress/20 text-text-main text-sm font-medium">
                         {successMsg}
                     </div>
                 )}
@@ -85,10 +80,7 @@ export function LogReg() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             placeholder="your@email.com"
-                            className="w-full px-4 py-2.5 bg-background border border-border rounded-xl
-                                       text-text-main placeholder:text-secondary/50 outline-none
-                                       focus:border-progress focus:ring-2 focus:ring-progress/20
-                                       transition-all duration-200"
+                            className="w-full px-4 py-3 bg-background rounded-xl text-text-main placeholder:text-secondary/60 outline-none focus:ring-2 focus:ring-accent transition-shadow duration-150"
                         />
                     </div>
 
@@ -107,10 +99,7 @@ export function LogReg() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
                                 placeholder="Pecker"
-                                className="w-full px-4 py-2.5 bg-background border border-border rounded-xl
-                                           text-text-main placeholder:text-secondary/50 outline-none
-                                           focus:border-progress focus:ring-2 focus:ring-progress/20
-                                           transition-all duration-200"
+                                className="w-full px-4 py-3 bg-background rounded-xl text-text-main placeholder:text-secondary/60 outline-none focus:ring-2 focus:ring-accent transition-shadow duration-150"
                             />
                         </div>
                     )}
@@ -130,24 +119,19 @@ export function LogReg() {
                             required
                             placeholder="••••••••"
                             minLength={6}
-                            className="w-full px-4 py-2.5 bg-background border border-border rounded-xl
-                                       text-text-main placeholder:text-secondary/50 outline-none
-                                       focus:border-progress focus:ring-2 focus:ring-progress/20
-                                       transition-all duration-200"
+                            className="w-full px-4 py-3 bg-background rounded-xl text-text-main placeholder:text-secondary/60 outline-none focus:ring-2 focus:ring-accent transition-shadow duration-150"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full mt-1 py-2.5 px-4 bg-progress text-progress-text font-semibold
-                                   rounded-xl shadow-[0_2px_12px_rgba(128,184,134,0.3)]
-                                   hover:shadow-[0_4px_18px_rgba(128,184,134,0.45)] hover:-translate-y-0.5
-                                   focus:outline-none focus:ring-2 focus:ring-progress/40
-                                   transition-all duration-200
-                                   disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        className="w-full mt-2 py-3.5 px-4 bg-accent text-accent-text font-semibold
+                                   rounded-full cursor-pointer hover:brightness-110
+                                   transition-[filter] duration-150
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Processing...' : (isLogin ? 'Login' : 'Register')}
+                        {loading ? 'Please wait…' : (isLogin ? 'Login' : 'Register')}
                     </button>
                 </form>
 
@@ -157,7 +141,7 @@ export function LogReg() {
                     <button
                         type="button"
                         onClick={toggleMode}
-                        className="font-semibold text-progress hover:text-text-main transition-colors duration-200 focus:outline-none"
+                        className="font-semibold text-text-main underline underline-offset-4 decoration-accent decoration-2 cursor-pointer"
                     >
                         {isLogin ? 'Register here' : 'Login here'}
                     </button>

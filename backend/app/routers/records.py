@@ -2,6 +2,7 @@ from h11._abnf import status_code
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from uuid import UUID
+from datetime import date
 
 from app.db.supabase import supabase
 from app.schemas.recordsSchema import RecordCreate,RecordResponse,RecordUpdate
@@ -22,6 +23,15 @@ async def get_user_records(user_id: UUID):
     if not response.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records found")
     return response.data
+
+@router.get("/weekly/{user_id}/{start_date}/{end_date}", response_model=List[dict])
+async def get_user_weekly_records(user_id: UUID, start_date: date, end_date: date):
+    query = supabase.table("records").select("*").eq("user_id",user_id).gte("date", start_date).lte("date", end_date)
+    response = query.execute()
+    if not response.data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records found")
+    return response.data
+    
 
 @router.get("/{id}", response_model=List[dict])
 async def get_record_by_id(id: UUID):

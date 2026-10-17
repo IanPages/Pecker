@@ -2,39 +2,56 @@
 
 @theme {
   /* ── Core palette ── */
-  --color-background: #F5F3EE;
-  --color-text-main: #353A36;
+  --color-background: #E4E8E1;
+  --color-text-main: #26302A;
 
-  /* ── Surface / UI colours ── */
-  --color-surface: #FFFFFF;
-  --color-hover: #E8E4DB;
-  --color-secondary: #6B7280;
-  --color-border: #E5E7EB;
+  /* ── Surface / UI colours (separated by tone steps, not lines) ── */
+  --color-surface: #D8DDD4;
+  --color-hover: #CBD2C6;
+  --color-secondary: #505B54;
+  --color-border: #C1C9BC;
 
-  /* ── Brand / Category colours ── */
-  --color-progress: #80b886;
-  --color-progress-text: #DCE7DF;
+  /* ── Accent: the woodpecker's crown ── */
+  --color-accent: #D7381F;
+  --color-accent-text: #FFFFFF;
+
+  /* ── Data / category colours ── */
+  --color-progress: #2F7D4F;
+  --color-progress-text: #FFFFFF;
   --color-freetime: #E8D8C4;
   --color-study: #C8B9D8;
   --color-outdoor: #D9A89C;
+
+  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 /* Dark mode — overrides the same --color-* vars so Tailwind classes update automatically */
 :root.dark {
-  --color-background: #121413;
-  --color-text-main: #F5F3EE;
-  --color-surface: #1C1E1D;
-  --color-hover: #292B2A;
-  --color-secondary: #9AA09C;
-  --color-border: #353A36;
-  --color-progress: #8DA690;
-  --color-progress-text: #2A332C;
+  --color-background: #0F1411;
+  --color-text-main: #EEF1EC;
+  --color-surface: #171E19;
+  --color-hover: #212A24;
+  --color-secondary: #96A19A;
+  --color-border: #2A342D;
+  --color-accent: #F0583F;
+  --color-accent-text: #130A08;
+  --color-progress: #6FC28F;
+  --color-progress-text: #0F1411;
   --color-freetime: #D5BCA2;
   --color-study: #B39FD1;
   --color-outdoor: #CF8E7F;
 }
 
 @layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
   * {
     box-sizing: border-box;
     margin: 0;
@@ -46,7 +63,7 @@ body {
   margin: 0;
   background-color: var(--color-background);
   color: var(--color-text-main);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

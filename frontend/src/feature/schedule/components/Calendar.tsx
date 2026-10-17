@@ -47,28 +47,28 @@ export function Calendar() {
             {/* ── Header ── */}
             <div className="flex items-center justify-between shrink-0">
                 <div>
-                    <h2 className="text-2xl font-bold text-text-main m-0 leading-tight">Schedule</h2>
-                    <p className="text-secondary text-sm m-0 mt-0.5">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-text-main leading-none">Schedule</h1>
+                    <p className="text-secondary mt-2">
                         {weekLabel}
                     </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     {/* Week nav */}
-                    <div className="flex items-center bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex items-center bg-surface rounded-full overflow-hidden">
                         <button
                             onClick={() => setWeekOffset(w => w - 1)}
-                            className="px-3 py-2 text-secondary hover:bg-hover hover:text-text-main
+                            className="px-3.5 py-2.5 text-secondary hover:bg-hover hover:text-text-main
                          transition-colors duration-150 border-none bg-transparent cursor-pointer"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <span className="px-3 text-xs font-semibold text-text-main select-none">
+                        <span className="px-3 text-sm font-semibold text-text-main select-none">
                             {weekOffset === 0 ? 'This week' : weekOffset < 0 ? `${Math.abs(weekOffset)}w ago` : `In ${weekOffset}w`}
                         </span>
                         <button
                             onClick={() => setWeekOffset(w => w + 1)}
-                            className="px-3 py-2 text-secondary hover:bg-hover hover:text-text-main
+                            className="px-3.5 py-2.5 text-secondary hover:bg-hover hover:text-text-main
                          transition-colors duration-150 border-none bg-transparent cursor-pointer"
                         >
                             <ChevronRight className="w-4 h-4" />
@@ -76,10 +76,9 @@ export function Calendar() {
                     </div>
 
                     {/* Add task */}
-                    <button className="flex items-center gap-2 bg-progress text-white border-none
-                             px-4 py-2 rounded-xl font-semibold text-sm cursor-pointer
-                             transition-all duration-200 shadow-sm
-                             hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(128,184,134,0.45)]">
+                    <button className="flex items-center gap-2 bg-accent text-accent-text border-none
+                             px-5 py-2.5 rounded-full font-semibold text-sm cursor-pointer
+                             transition-[filter] duration-150 hover:brightness-110">
                         <Plus className="w-4 h-4" />
                         Add Task
                     </button>
@@ -87,39 +86,38 @@ export function Calendar() {
             </div>
 
             {/* ── Calendar card ── */}
-            <div className="bg-surface border border-border rounded-2xl overflow-hidden flex flex-col flex-1 min-h-0 shadow-sm">
-
-                {/* Day headers */}
-                <div
-                    className="grid border-b border-border shrink-0 bg-surface"
-                    style={{ gridTemplateColumns: '52px repeat(7, 1fr)' }}
-                >
-                    <div className="py-3 border-r border-border" /> {/* gutter */}
-                    {weekDays.map((day) => {
-                        const isToday = day.isToday;
-                        return (
-                            <div
-                                key={day.short}
-                                className={`py-3 text-center border-l border-border
-                  ${isToday ? 'bg-progress/[0.06]' : ''}`}
-                            >
-                                <div className={`text-[10px] font-bold uppercase tracking-widest mb-1
-                  ${isToday ? 'text-progress' : 'text-secondary'}`}>
-                                    {day.short}
-                                </div>
-                                <div className={`text-xl font-bold leading-none
-                  ${isToday
-                                        ? 'bg-progress text-white w-8 h-8 rounded-full flex items-center justify-center mx-auto'
-                                        : 'text-text-main'}`}>
-                                    {day.date}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+            <div className="bg-surface rounded-2xl overflow-hidden flex flex-col flex-1 min-h-0">
 
                 {/* Scrollable time grid */}
                 <div ref={scrollRef} className="overflow-y-auto flex-1 min-h-0 relative">
+                    {/* Day headers: sticky inside the scroller so columns align with the grid */}
+                    <div
+                        className="grid sticky top-0 z-20 bg-surface"
+                        style={{ gridTemplateColumns: '52px repeat(7, 1fr)' }}
+                    >
+                        <div className="py-3" /> 
+                        {weekDays.map((day) => {
+                            const isToday = day.isToday;
+                            return (
+                                <div
+                                    key={day.short}
+                                    className={`py-3 text-center border-l border-border/60 ${isToday ? 'bg-hover' : ''}`}
+                                >
+                                    <div className={`text-xs font-semibold mb-1
+                      ${isToday ? 'text-text-main' : 'text-secondary'}`}>
+                                        {day.short}
+                                    </div>
+                                    <div className={`text-xl font-bold leading-none
+                      ${isToday
+                                            ? 'bg-accent text-accent-text w-8 h-8 rounded-full flex items-center justify-center mx-auto'
+                                            : 'text-text-main'}`}>
+                                        {day.date}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
                     <div
                         className="grid"
                         style={{
@@ -128,14 +126,14 @@ export function Calendar() {
                         }}
                     >
                         {/* ── Time gutter ── */}
-                        <div className="relative border-r border-border bg-surface/80">
+                        <div className="relative bg-surface">
                             {HOURS.map(h => (
                                 <div
                                     key={h}
                                     className="absolute right-0 flex items-center justify-end pr-2"
                                     style={{ top: h * HOUR_H, height: HOUR_H }}
                                 >
-                                    <span className="text-[10px] text-secondary/70 font-medium -translate-y-3">
+                                    <span className="text-[11px] text-secondary font-medium tabular-nums -translate-y-3">
                                         {fmtHours(h)}
                                     </span>
                                 </div>
@@ -150,14 +148,13 @@ export function Calendar() {
                             return (
                                 <div
                                     key={day.short}
-                                    className={`relative border-l border-border/50
-                    ${isToday ? 'bg-progress/[0.025]' : ''}`}
+                                    className={`relative border-l border-border/60 ${isToday ? 'bg-hover' : ''}`}
                                 >
                                     {/* Hour lines */}
                                     {HOURS.map(h => (
                                         <div
                                             key={h}
-                                            className="absolute left-0 right-0 border-t border-border/40"
+                                            className="absolute left-0 right-0 border-t border-border"
                                             style={{ top: h * HOUR_H }}
                                         />
                                     ))}
@@ -166,7 +163,7 @@ export function Calendar() {
                                     {HOURS.map(h => (
                                         <div
                                             key={`h-${h}`}
-                                            className="absolute left-0 right-0 border-t border-border/20 border-dashed"
+                                            className="absolute left-0 right-0 border-t border-border/40"
                                             style={{ top: h * HOUR_H + HOUR_H / 2 }}
                                         />
                                     ))}
@@ -182,20 +179,20 @@ export function Calendar() {
                                                 key={task.id}
                                                 onClick={() => handleSelect(task)}
                                                 className={[
-                                                    'absolute left-1 right-1 rounded-xl px-2.5 py-1.5 text-left',
-                                                    'border-none cursor-pointer transition-all duration-200 overflow-hidden',
-                                                    'hover:scale-[1.02] hover:shadow-lg hover:z-10',
-                                                    'bg-progress text-white',
+                                                    'absolute left-1 right-1 rounded-lg px-2.5 py-1.5 text-left',
+                                                    'border-none cursor-pointer transition-[filter,transform] duration-150 overflow-hidden',
+                                                    'hover:z-10',
+                                                    'bg-progress text-progress-text',
                                                     isSelected
-                                                        ? 'ring-2 ring-progress scale-[1.02] shadow-lg z-10'
-                                                        : 'opacity-90 hover:opacity-100',
+                                                        ? 'ring-2 ring-text-main z-10'
+                                                        : 'hover:brightness-110',
                                                 ].join(' ')}
                                                 style={{
                                                     top: startH * HOUR_H + 2,
                                                     height: Math.max(durH * HOUR_H - 4, 20),
                                                 }}
                                             >
-                                                <div className="text-[10px] font-semibold opacity-60">
+                                                <div className="text-[11px] font-semibold opacity-80 tabular-nums">
                                                     {fmtHours(startH)} – {fmtHours(endH)}
                                                 </div>
                                                 <div className="text-xs font-semibold mt-0.5 leading-snug line-clamp-2">
@@ -217,8 +214,7 @@ export function Calendar() {
                 const endH = isoToHours(selectedTask.finish_hour);
                 const colIdx = getColIdx(selectedTask.date, weekDays);
                 return (
-                    <div className="bg-surface border border-border rounded-2xl p-5 shrink-0
-                            shadow-sm flex flex-col gap-4">
+                    <div className="bg-surface rounded-2xl p-5 shrink-0 flex flex-col gap-4">
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-2.5 h-2.5 rounded-full shrink-0 bg-progress" />
@@ -249,10 +245,10 @@ export function Calendar() {
                             defaultValue={selectedTask.notes}
                             rows={2}
                             placeholder="Add notes…"
-                            className="bg-background border border-border rounded-xl px-4 py-3 text-sm
+                            className="bg-background rounded-xl px-4 py-3 text-sm
                            text-text-main resize-none outline-none w-full
-                           focus:ring-2 focus:ring-progress/40 focus:border-progress/40
-                           transition-all duration-200 placeholder:text-secondary/50"
+                           focus:ring-2 focus:ring-accent
+                           transition-shadow duration-150 placeholder:text-secondary/50"
                         />
                     </div>
                 );

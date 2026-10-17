@@ -1,150 +1,126 @@
-import { Activity, BarChart2, Calendar, Target, ArrowRight, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const FEATURES = [
   {
-    icon: <Calendar className="w-6 h-6" />,
-    iconClass: 'bg-progress/15 text-progress',
-    title: 'Smart Scheduling',
-    desc: 'Plan your week with structured time blocks across work, study, free time and outdoor activities.',
+    title: 'Plan the week in blocks',
+    desc: 'Lay out work, study, free time and outdoor hours on one weekly planner, each category in its own colour.',
   },
   {
-    icon: <Target className="w-6 h-6" />,
-    iconClass: 'bg-study/60 text-text-main',
-    title: 'Goal Tracking',
-    desc: 'Set weekly goals, track completion rates and celebrate every streak you build.',
+    title: 'Track goals and streaks',
+    desc: 'Set weekly goals, watch the completion rate move, and keep the streak going one day at a time.',
   },
   {
-    icon: <BarChart2 className="w-6 h-6" />,
-    iconClass: 'bg-freetime/60 text-text-main',
-    title: 'Analytics & Insights',
-    desc: 'Visual breakdowns of how you spend your time — so you can do more of what matters.',
+    title: 'See where the time went',
+    desc: 'Visual breakdowns of how you spend your week, so you can do more of what matters.',
   },
 ];
 
 const BENEFITS = [
   'Visual weekly planner',
   'Category-based time tracking',
-  'Progress streaks & goals',
-  'Dark & light mode',
-  'Available on all devices',
+  'Progress streaks and goals',
+  'Dark and light mode',
+  'Works on every device',
 ];
 
+const BUTTON = 'inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold no-underline transition-colors duration-150';
+
 export function LandingPage() {
+  // The live thing: tap days to mark them done and watch the week fill up
+  const [done, setDone] = useState<boolean[]>([true, true, false, true, false, false, false]);
+  const count = done.filter(Boolean).length;
+  const toggle = (i: number) => setDone((d) => d.map((v, j) => (j === i ? !v : v)));
+
   return (
-    <div className="min-h-full flex flex-col gap-20 py-4">
+    <div className="flex flex-col gap-32 md:gap-44 max-w-[1500px] pb-8">
 
       {/* ── Hero ── */}
-      <section className="flex flex-col items-center text-center gap-6 pt-10">
-        {/* Badge */}
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-progress/15 border border-progress/25 text-progress text-sm font-semibold">
-          <Activity className="w-4 h-4" />
-          <span>Your personal habit tracker</span>
-        </div>
-
-        {/* Headline */}
-        <h1
-          className="text-5xl font-bold leading-tight max-w-2xl m-0"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-text-main) 0%, var(--color-progress) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Build better habits,<br />one day at a time.
+      <section className="flex flex-col gap-10 pt-6 md:pt-16">
+        <h1 className="font-extrabold text-[clamp(3rem,10vw,8rem)] leading-[0.92] tracking-[-0.04em] text-balance max-w-[12ch]">
+          Small pecks. Big habits.
         </h1>
 
-        <p className="text-lg text-secondary max-w-xl m-0 leading-relaxed">
-          Pecker helps you plan, track and understand how you spend your time —
-          turning daily routines into measurable progress.
+        <p className="text-lg md:text-xl max-w-xl leading-relaxed">
+          Pecker helps you plan, track and understand how you spend your time, turning daily routines into measurable progress.
         </p>
 
-        {/* CTAs */}
-        <div className="flex items-center gap-4 mt-2 flex-wrap justify-center">
-          <Link
-            to="/login"
-            className="flex items-center gap-2 px-6 py-3 bg-progress text-progress-text font-semibold
-                       rounded-xl no-underline shadow-[0_2px_12px_rgba(128,184,134,0.3)]
-                       hover:shadow-[0_4px_18px_rgba(128,184,134,0.45)] hover:-translate-y-0.5
-                       transition-all duration-200"
-          >
+        <div className="flex flex-wrap items-center gap-3">
+          <Link to="/login" className={`${BUTTON} bg-accent text-accent-text hover:brightness-110`}>
             Get started free
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link
-            to="/login"
-            className="flex items-center gap-2 px-6 py-3 bg-surface border border-border text-text-main
-                       font-semibold rounded-xl no-underline hover:bg-hover
-                       transition-all duration-200"
-          >
+          <Link to="/login" className={`${BUTTON} bg-surface text-text-main hover:bg-hover`}>
             Log in
           </Link>
         </div>
-      </section>
 
-      {/* ── Features ── */}
-      <section className="flex flex-col gap-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-text-main m-0 mb-2">Everything you need to stay consistent</h2>
-          <p className="text-secondary m-0">Simple tools, powerful results.</p>
-        </div>
-
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
-          {FEATURES.map(({ icon, iconClass, title, desc }) => (
-            <div
-              key={title}
-              className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-4
-                         shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-200
-                         hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]"
-            >
-              <div className={`w-12 h-12 rounded-[12px] flex items-center justify-center ${iconClass}`}>
-                {icon}
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-base font-semibold text-text-main m-0">{title}</h3>
-                <p className="text-sm text-secondary m-0 leading-relaxed">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Benefits strip ── */}
-      <section
-        className="bg-surface border border-border rounded-2xl p-8 flex flex-col md:flex-row
-                   items-center gap-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
-      >
-        <div className="flex-1 flex flex-col gap-3">
-          <h2 className="text-2xl font-bold text-text-main m-0">Why Pecker?</h2>
-          <p className="text-secondary m-0 leading-relaxed">
-            Designed to be lightweight, beautiful and distraction-free.
-            Focus on building the life you want — Pecker handles the tracking.
+        {/* Live week: one tap per day */}
+        <div className="bg-surface rounded-3xl p-5 md:p-8 flex flex-col gap-6">
+          <p className="text-lg font-semibold">
+            Try it: tap the days you showed up.{' '}
+            <span className="text-secondary font-normal tabular-nums">{count} of 7 done</span>
           </p>
+          <div className="grid grid-cols-7 gap-2 md:gap-4">
+            {DAYS.map((day, i) => (
+              <button
+                key={day}
+                type="button"
+                aria-pressed={done[i]}
+                onClick={() => toggle(i)}
+                className={[
+                  'h-28 md:h-40 rounded-xl flex items-end justify-center pb-3 text-sm md:text-base font-semibold',
+                  'cursor-pointer transition-colors duration-150 active:scale-95',
+                  done[i] ? 'bg-accent text-accent-text' : 'bg-hover text-secondary hover:text-text-main',
+                ].join(' ')}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <ul className="flex-1 list-none p-0 m-0 flex flex-col gap-3">
-          {BENEFITS.map((b) => (
-            <li key={b} className="flex items-center gap-3 text-sm text-text-main font-medium">
-              <CheckCircle className="w-4 h-4 text-progress shrink-0" />
-              {b}
+      {/* ── Features: a plain ledger, no cards ── */}
+      <section className="grid gap-10 md:grid-cols-[1fr_2fr] md:gap-16">
+        <h2 className="text-4xl md:text-6xl font-extrabold leading-[0.98] text-balance">
+          Everything you need to stay consistent
+        </h2>
+        <ul className="list-none flex flex-col gap-12 md:pt-3">
+          {FEATURES.map(({ title, desc }) => (
+            <li key={title} className="flex flex-col gap-2">
+              <h3 className="text-2xl md:text-3xl font-semibold">{title}</h3>
+              <p className="text-lg text-secondary max-w-xl leading-relaxed">{desc}</p>
             </li>
           ))}
         </ul>
       </section>
 
-      {/* ── CTA bottom ── */}
-      <section className="flex flex-col items-center text-center gap-6 pb-10">
-        <h2 className="text-3xl font-bold text-text-main m-0">Ready to start?</h2>
-        <p className="text-secondary m-0">Create your free account in seconds. No credit card required.</p>
-        <Link
-          to="/login"
-          className="flex items-center gap-2 px-8 py-3.5 bg-progress text-progress-text font-semibold
-                     rounded-xl no-underline text-base shadow-[0_2px_12px_rgba(128,184,134,0.3)]
-                     hover:shadow-[0_4px_18px_rgba(128,184,134,0.45)] hover:-translate-y-0.5
-                     transition-all duration-200"
-        >
+      {/* ── Why: full-field colour change ── */}
+      <section className="bg-text-main text-background rounded-3xl p-8 md:p-16 grid gap-10 md:grid-cols-2 md:items-center">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold leading-[0.98]">Why Pecker?</h2>
+          <p className="text-lg leading-relaxed max-w-md">
+            Lightweight, quiet and distraction-free. You focus on building the life you want, and Pecker handles the tracking.
+          </p>
+        </div>
+        <ul className="list-none flex flex-col gap-3">
+          {BENEFITS.map((b) => (
+            <li key={b} className="text-xl md:text-2xl font-display font-semibold">{b}</li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ── Close ── */}
+      <section className="bg-accent text-accent-text rounded-3xl p-8 md:p-16 flex flex-col gap-8 items-start">
+        <h2 className="text-5xl md:text-8xl font-extrabold leading-[0.92] tracking-[-0.04em]">Ready to start?</h2>
+        <p className="text-lg md:text-xl max-w-lg">Create your free account in seconds. No credit card required.</p>
+        <Link to="/login" className={`${BUTTON} bg-accent-text text-accent hover:opacity-90`}>
           Create free account
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-4 h-4" />
         </Link>
       </section>
 
