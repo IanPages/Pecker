@@ -28,6 +28,7 @@
 
 /* Dark mode — overrides the same --color-* vars so Tailwind classes update automatically */
 :root.dark {
+  color-scheme: dark;
   --color-background: #0F1411;
   --color-text-main: #EEF1EC;
   --color-surface: #171E19;
@@ -85,4 +86,8 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-progress);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }

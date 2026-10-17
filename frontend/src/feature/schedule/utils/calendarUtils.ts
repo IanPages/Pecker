@@ -9,6 +9,11 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 // ── Week helpers ─────────────────────────────────────────────────────────────
 
+/** Local calendar date as "YYYY-MM-DD". toISOString() converts to UTC and can shift the day. */
+export function toLocalISODate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function isSameDay(a: Date, b: Date) {
     return a.getFullYear() === b.getFullYear() &&
         a.getMonth() === b.getMonth() &&
@@ -39,7 +44,7 @@ export function getWeekDays(weekStart: Date) {
             month: MONTHS[d.getMonth()],
             year: d.getFullYear(),
             isToday: isSameDay(d, today),
-            isoDate: d.toISOString().split('T')[0], // e.g. "2026-10-06"
+            isoDate: toLocalISODate(d), // e.g. "2026-10-06"
         };
     });
 }

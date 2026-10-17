@@ -20,7 +20,7 @@ class RecordCreate(BaseModel):
         start_hour = info.data.get("start_hour")
         if start_hour and finish_hour <= start_hour:
             raise ValueError("finish_hour debe ser posterior a start_hour")
-            return finish_hour
+        return finish_hour
 
 class RecordResponse(RecordCreate):
     id:UUID
@@ -46,5 +46,5 @@ class RecordUpdate(BaseModel):
         start_hour = info.data.get("start_hour")
         if start_hour and finish_hour <= start_hour:
             raise ValueError("finish_hour debe ser posterior a start_hour")
-            return finish_hour
+        return finish_hour
       

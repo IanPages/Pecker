@@ -1,15 +1,13 @@
+import { authHeaders } from "../../auth/services/authHeaders";
+import { toLocalISODate } from "../utils/calendarUtils";
 import type { Task } from "../types/Task";
 
-const toISODate = (d: Date) => d.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-export async function weeklyFetch(userId: string | undefined, startDate: Date, endDate: Date): Promise<Task[]> {
+export async function weeklyFetch(startDate: Date, endDate: Date): Promise<Task[]> {
 
-    const response = await fetch(`http://localhost:8080/records/weekly/${userId}/${toISODate(startDate)}/${toISODate(endDate)}`, {
+    const response = await fetch(`http://localhost:8080/records/weekly/${toLocalISODate(startDate)}/${toLocalISODate(endDate)}`, {
         method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
+        headers: await authHeaders()
     })
 
     const data = await response.json()

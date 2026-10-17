@@ -2,7 +2,7 @@ from h11._abnf import status_code
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from uuid import UUID
-from datetime import date
+from datetime import date, datetime
 
 from app.db.supabase import supabase
 from app.schemas.recordsSchema import RecordCreate,RecordResponse,RecordUpdate
@@ -13,10 +13,10 @@ router = APIRouter(
     tags=["Records"]
 )
 
-@router.get("/user/{user_id}", response_model=List[dict])
-async def get_user_records(user_id: UUID):
-    
-    query = supabase.table("records").select("*").eq("user_id",user_id)
+@router.get("/user", response_model=List[dict])
+async def get_user_records(user: dict = Depends(get_current_user)):
+
+    query = supabase.table("records").select("*").eq("user_id", user["id"])
 
     response = query.execute()
 
@@ -24,14 +24,14 @@ async def get_user_records(user_id: UUID):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records found")
     return response.data
 
-@router.get("/weekly/{user_id}/{start_date}/{end_date}", response_model=List[dict])
-async def get_user_weekly_records(user_id: UUID, start_date: date, end_date: date):
-    query = supabase.table("records").select("*").eq("user_id",user_id).gte("date", start_date).lte("date", end_date)
+@router.get("/weekly/{start_date}/{end_date}", response_model=List[dict])
+async def get_user_weekly_records(start_date: date, end_date: date, user: dict = Depends(get_current_user)):
+    query = supabase.table("records").select("*").eq("user_id", user["id"]).gte("date", start_date).lte("date", end_date)
     response = query.execute()
     if not response.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No records found")
     return response.data
-    
+
 
 @router.get("/{id}", response_model=List[dict])
 async def get_record_by_id(id: UUID):
@@ -44,14 +44,14 @@ async def get_record_by_id(id: UUID):
     return response.data
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_record(record_data: RecordCreate):
-    
-    record_data.user_id = get_current_user().id
-    json_schema = record_data.model_dump(mode="json", exclude_unset=True)
+async def create_record(record_data: RecordCreate, user: dict = Depends(get_current_user)):
 
-    query = supabase.table("records").insert(json_schema)
+    # user_id and created_at are not part of RecordCreate, so they go into the payload, not the model
+    payload = record_data.model_dump(mode="json", exclude_unset=True)
+    payload["user_id"] = user["id"]
+    payload["created_at"] = datetime.now().isoformat()
 
-    response = query.execute()
+    response = supabase.table("records").insert(payload).execute()
 
     if not response.data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(response.error))

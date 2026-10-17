@@ -11,3 +11,22 @@ export interface Task {
     duration_minutes: number;
     created_at: string;
 }
+
+export interface createTask {
+    name: string;
+    category_id: string;
+    date: string;          // "YYYY-MM-DD" -> Postgres date
+    start_hour: Date;      // serialised as ISO 8601 -> timestamptz
+    finish_hour: Date;
+    notes?: string;
+    duration_minutes: number; // derived in the form; not part of the backend RecordCreate yet
+}
+
+export interface TaskChanges {
+    name: string;
+    category_id: string;
+    date: string;
+    start_hour: Date;
+    finish_hour: Date;
+    notes: string;
+}
