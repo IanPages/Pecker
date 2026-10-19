@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import type { Task } from '../types/Task';
-import { HOUR_H, HOURS, getWeekStart, getWeekDays, isoToHours, fmtHours } from '../utils/calendarUtils';
+import { HOUR_H, HOURS, getWeekStart, getWeekDays, isoToHours, fmtHours, readableTextColor } from '../utils/calendarUtils';
 import { weeklyFetch } from '../services/CalendarWeeklyFetch';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { TaskModal } from './TaskModal';
@@ -204,12 +204,17 @@ export function Calendar() {
                                                     'absolute left-1 right-1 rounded-lg px-2.5 py-1.5 text-left',
                                                     'border-none cursor-pointer transition-[filter,transform] duration-150 overflow-hidden',
                                                     'hover:z-10',
+                                                    // fallback green for records without a category; the category color overrides it below
                                                     'bg-progress text-progress-text',
                                                     isSelected
                                                         ? 'ring-2 ring-text-main z-10'
                                                         : 'hover:brightness-110',
                                                 ].join(' ')}
                                                 style={{
+                                                    ...(task.categories && {
+                                                        backgroundColor: `#${task.categories.color}`,
+                                                        color: readableTextColor(task.categories.color),
+                                                    }),
                                                     top: startH * HOUR_H + 2,
                                                     height: Math.max(durH * HOUR_H - 4, 20),
                                                 }}

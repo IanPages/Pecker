@@ -10,6 +10,7 @@ export interface Task {
     notes: string;
     duration_minutes: number;
     created_at: string;
+    categories?: { name: string; color: string } | null; // embedded by the weekly/recent endpoints
 }
 
 export interface createTask {
