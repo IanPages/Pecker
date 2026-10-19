@@ -58,7 +58,7 @@ async def create_record(record_data: RecordCreate, user: dict = Depends(get_curr
 
     return {"message": "Record created successfully", "data": response.data}
 
-@router.put("/{id}", response_model=List[dict])
+@router.put("/{id}", response_model=dict)
 async def update_record(id: UUID, record_data: RecordUpdate):
     json_schema = record_data.model_dump(mode="json", exclude_unset=True)
     
@@ -72,7 +72,7 @@ async def update_record(id: UUID, record_data: RecordUpdate):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No record found")
     return {"message": "Record updated successfully", "data": response.data}
 
-@router.delete("/{id}", response_model=List[dict])
+@router.delete("/{id}", response_model=dict)
 async def delete_record(id: UUID):
     query = supabase.table("records").delete().eq("id", id)
     response = query.execute()

@@ -6,6 +6,7 @@ import { weeklyFetch } from '../services/CalendarWeeklyFetch';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { TaskModal } from './TaskModal';
 import { TaskDetailModal } from './TaskDetailModal';
+import { updateTask } from '../services/UpdateTask';
 
 // Below lg the week keeps readable columns (96px) and scrolls sideways instead of squeezing 7 days into the screen
 const COL_W = 96;
@@ -232,9 +233,14 @@ export function Calendar() {
             <TaskDetailModal
                 task={selectedTask}
                 onClose={() => setSelectedTask(null)}
-                onSave={(_id, _changes) => {
-                    // TODO: PUT /records/{id} with the changes, then loadTasks()
-                    setSelectedTask(null);
+                onSave={async (_id, _changes) => {
+                    try {
+                        await updateTask(_id, _changes);
+                        await loadTasks();
+                        setSelectedTask(null);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }}
             />
             <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={loadTasks} />
