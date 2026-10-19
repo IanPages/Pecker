@@ -1,17 +1,18 @@
-# PECKER - Personal Tracker
+# Pecker - Personal Tracker
 
-Your personal tracker app to keep your time usage through the day and keep your time clear.
+Your personal tracker to keep up to date how you manage/use your time over the day.
 
 
-### TECH STACK
+## Tech Stack
 
 #### Front-end
 
-- React
-- TypeScript
-
+React
+TypeScript
+TailwindCSS
+Lucide-React
 
 #### Back-end
 
-- FastAPI
-- Supabase
+FastAPI
+Supabase/PostgreSQL
