@@ -4,6 +4,8 @@ import { type Category } from '../types/Category';
 import { type createTask } from '../types/Task';
 import { categoriesFetch } from '../services/CategoriesFetch';
 import { createTaskRequest } from '../services/CreateTask';
+import { type Goal } from '../../goals/types/Goal';
+import { goalsFetch } from '../../goals/services/GoalsFetch';
 
 interface TaskModalProps {
     open: boolean;
@@ -23,9 +25,11 @@ const todayISO = () => {
 export function TaskModal({ open, onClose, onCreated }: TaskModalProps) {
     const ref = useRef<HTMLDialogElement>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [goals, setGoals] = useState<Goal[]>([]);
 
     const [name, setName] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [goalId, setGoalId] = useState('');
     const [date, setDate] = useState(todayISO());
     const [start, setStart] = useState('09:00');
     const [finish, setFinish] = useState('10:00');
@@ -48,8 +52,16 @@ export function TaskModal({ open, onClose, onCreated }: TaskModalProps) {
             setCategories(data);
             setCategoryId((current) => current || data[0]?.id || '');
         });
-        setName(''); setNotes(''); setError(null); setDate(todayISO());
+        goalsFetch('active').then(setGoals).catch(() => setGoals([])); // goals are optional, the form works without them
+        setName(''); setNotes(''); setGoalId(''); setError(null); setDate(todayISO());
     }, [open]);
+
+    // Picking a goal suggests its category; the user can still change it afterwards
+    const handleGoalChange = (id: string) => {
+        setGoalId(id);
+        const goal = goals.find((g) => g.id === id);
+        if (goal?.category_id) setCategoryId(goal.category_id);
+    };
 
     // Local date + time -> Date (sent as ISO, so Postgres stores the right instant in timestamptz)
     const toDate = (day: string, time: string) => new Date(`${day}T${time}`);
@@ -67,6 +79,7 @@ export function TaskModal({ open, onClose, onCreated }: TaskModalProps) {
         const task: createTask = {
             name: name.trim(),
             category_id: categoryId,
+            goal_id: goalId || undefined,
             date,
             start_hour: toDate(date, start),
             finish_hour: toDate(date, finish),
@@ -131,6 +144,17 @@ export function TaskModal({ open, onClose, onCreated }: TaskModalProps) {
                         {categories.length === 0 && <option value="">No categories yet</option>}
                         {categories.map((c) => (
                             <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label htmlFor="task-goal" className={LABEL}>Goal (optional)</label>
+                    <select id="task-goal" value={goalId}
+                        onChange={(e) => handleGoalChange(e.target.value)} className={FIELD}>
+                        <option value="">No goal</option>
+                        {goals.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
                         ))}
                     </select>
                 </div>

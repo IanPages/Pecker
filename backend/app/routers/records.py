@@ -13,6 +13,11 @@ router = APIRouter(
     tags=["Records"]
 )
 
+def ensure_goal_owned(goal_id: str | None, user_id: str):
+    """The FK only checks the goal exists, not that it belongs to the user"""
+    if goal_id and not supabase.table("goals").select("id").eq("id", goal_id).eq("user_id", user_id).execute().data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid goal")
+
 @router.get("/user", response_model=List[dict])
 async def get_user_records(user: dict = Depends(get_current_user)):
 
@@ -122,6 +127,7 @@ async def create_record(record_data: RecordCreate, user: dict = Depends(get_curr
     payload = record_data.model_dump(mode="json", exclude_unset=True)
     payload["user_id"] = user["id"]
     payload["created_at"] = datetime.now().isoformat()
+    ensure_goal_owned(payload.get("goal_id"), user["id"])
 
     response = supabase.table("records").insert(payload).execute()
 
@@ -131,11 +137,12 @@ async def create_record(record_data: RecordCreate, user: dict = Depends(get_curr
     return {"message": "Record created successfully", "data": response.data}
 
 @router.put("/{id}", response_model=dict)
-async def update_record(id: UUID, record_data: RecordUpdate):
+async def update_record(id: UUID, record_data: RecordUpdate, user: dict = Depends(get_current_user)):
     json_schema = record_data.model_dump(mode="json", exclude_unset=True)
     
     if not json_schema:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No valid data provided to update")
+    ensure_goal_owned(json_schema.get("goal_id"), user["id"])
 
     query = supabase.table("records").update(json_schema).eq("id", id)
     response = query.execute()

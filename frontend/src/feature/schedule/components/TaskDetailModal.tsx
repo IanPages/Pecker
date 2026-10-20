@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import type { Category } from '../types/Category';
 import type { Task, TaskChanges } from '../types/Task';
 import { categoriesFetch } from '../services/CategoriesFetch';
+import type { Goal } from '../../goals/types/Goal';
+import { goalsFetch } from '../../goals/services/GoalsFetch';
 
 interface TaskDetailModalProps {
     task: Task | null;          // the modal is open while there is a task
@@ -22,9 +24,11 @@ const toTimeInput = (iso: string) => {
 export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps) {
     const ref = useRef<HTMLDialogElement>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [goals, setGoals] = useState<Goal[]>([]);
 
     const [name, setName] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [goalId, setGoalId] = useState('');
     const [date, setDate] = useState('');
     const [start, setStart] = useState('');
     const [finish, setFinish] = useState('');
@@ -43,12 +47,17 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
         if (!task) return;
         setName(task.name);
         setCategoryId(task.category_id ?? '');
+        setGoalId(task.goal_id ?? '');
         setDate(task.date);
         setStart(toTimeInput(task.start_hour));
         setFinish(toTimeInput(task.finish_hour));
         setNotes(task.notes ?? '');
         setError(null);
         categoriesFetch().then(setCategories);
+        // active goals, plus the record's current one even if it is already completed or archived
+        goalsFetch()
+            .then((data) => setGoals(data.filter((g) => g.status === 'active' || g.id === task.goal_id)))
+            .catch(() => setGoals([]));
     }, [task]);
 
     const toDate = (day: string, time: string) => new Date(`${day}T${time}`);
@@ -64,6 +73,7 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
         onSave(task.id, {
             name: name.trim(),
             category_id: categoryId,
+            goal_id: goalId || null,
             date,
             start_hour: toDate(date, start),
             finish_hour: toDate(date, finish),
@@ -117,6 +127,17 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
                         onChange={(e) => setCategoryId(e.target.value)} className={FIELD}>
                         {categories.map((c) => (
                             <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label htmlFor="detail-goal" className={LABEL}>Goal (optional)</label>
+                    <select id="detail-goal" value={goalId}
+                        onChange={(e) => setGoalId(e.target.value)} className={FIELD}>
+                        <option value="">No goal</option>
+                        {goals.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
                         ))}
                     </select>
                 </div>

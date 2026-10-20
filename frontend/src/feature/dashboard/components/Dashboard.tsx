@@ -4,12 +4,16 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { fmtHours, timeAgo } from '../utils/statsFormat';
 import { useRecentRecords } from '../hooks/useRecentRecords';
+import { GoalsOverview } from './GoalsOverview';
+import { useGoals } from '../../goals/hooks/useGoals';
+import { toLocalISODate } from '../../schedule/utils/calendarUtils';
 
 export function Dashboard() {
   const { user } = useAuth();
   const name = user?.email?.split('@')[0] ?? 'Guest';
   const { stats, error } = useDashboardStats(!!user?.id);
   const { records, error: recentError } = useRecentRecords(!!user?.id);
+  const { goals, error: goalsError } = useGoals(!!user?.id);
 
   const change = stats?.change_pct;
   const facts = [
@@ -64,6 +68,8 @@ export function Dashboard() {
           {records?.length === 0 && <p className="text-secondary">No activity yet.</p>}
         </section>
       </div>
+
+      <GoalsOverview goals={goals} today={toLocalISODate(new Date())} error={goalsError} />
 
       <CategoryBreakdown stats={stats} />
 

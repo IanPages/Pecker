@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import categories, records
+from app.routers import categories, records, goals
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -10,6 +10,7 @@ app = FastAPI(
 # Inclusión de routers modularizados
 app.include_router(categories.router)
 app.include_router(records.router)
+app.include_router(goals.router)
 
 app.add_middleware(
     CORSMiddleware,

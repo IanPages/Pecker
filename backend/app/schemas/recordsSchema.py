@@ -7,6 +7,7 @@ from uuid import UUID
 class RecordCreate(BaseModel):
     name: str=Field(min_length=1,max_length=255)
     category_id: Optional[UUID]=None
+    goal_id: Optional[UUID]=None
     date: Date
     start_hour: datetime
     finish_hour: datetime
@@ -34,6 +35,7 @@ class RecordResponse(RecordCreate):
 class RecordUpdate(BaseModel):
     name: Optional[str]
     category_id: Optional[UUID]
+    goal_id: Optional[UUID]=None
     date: Optional[Date]
     start_hour: Optional[datetime]
     finish_hour: Optional[datetime]
