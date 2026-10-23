@@ -84,6 +84,35 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── Product preview ── */}
+      <section className="flex flex-col gap-8">
+        <div className="flex flex-col gap-3">
+          <h2 className="text-4xl md:text-6xl font-extrabold leading-[0.98] text-balance">Your week, at a glance</h2>
+          <p className="text-lg text-secondary max-w-xl leading-relaxed">
+            Hours tracked, streaks, daily averages and recent activity, all on one dashboard.
+          </p>
+        </div>
+        <div className="bg-surface rounded-3xl p-2 md:p-4">
+          {/* one screenshot per theme; the hidden one is never downloaded thanks to lazy loading */}
+          <img
+            src="/DashboardLight.png"
+            alt="Pecker dashboard showing hours tracked this week, a daily bar chart and recent activity"
+            width={1582}
+            height={807}
+            loading="lazy"
+            className="w-full h-auto rounded-2xl dark:hidden"
+          />
+          <img
+            src="/Dashboard.png"
+            alt="Pecker dashboard showing hours tracked this week, a daily bar chart and recent activity"
+            width={1592}
+            height={801}
+            loading="lazy"
+            className="w-full h-auto rounded-2xl hidden dark:block"
+          />
+        </div>
+      </section>
+
       {/* ── Features: a plain ledger, no cards ── */}
       <section className="grid gap-10 md:grid-cols-[1fr_2fr] md:gap-16">
         <h2 className="text-4xl md:text-6xl font-extrabold leading-[0.98] text-balance">

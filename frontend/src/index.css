@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark: follows the .dark class the theme toggle sets on <html>, not the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* ── Core palette ── */
   --color-background: #E4E8E1;
