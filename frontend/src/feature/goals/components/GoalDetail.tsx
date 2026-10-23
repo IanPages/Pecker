@@ -100,7 +100,7 @@ export function GoalDetail() {
     };
 
     return (
-        <div className="flex flex-col gap-8 max-w-[1500px]">
+        <div className="flex flex-col gap-8 w-full max-w-[1500px] mx-auto">
             <Link to="/goals" className="flex items-center gap-2 text-secondary hover:text-text-main no-underline text-sm font-medium self-start transition-colors duration-150">
                 <ArrowLeft className="w-4 h-4" /> Goals
             </Link>

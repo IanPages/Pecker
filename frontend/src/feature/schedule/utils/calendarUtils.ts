@@ -65,7 +65,7 @@ export function fmtHours(h: number): string {
 }
 
 /**
- * Maps a task's `date` ("YYYY-MM-DD") to the column index (0–4) of the
+ * Maps a task's `date` ("YYYY-MM-DD") to the column index of the
  * current week. Returns -1 if the task falls outside the displayed week.
  */
 export function getColIdx(taskDate: string, weekDays: { isoDate: string }[]): number {

@@ -23,7 +23,7 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="flex flex-col gap-10 max-w-[1500px]">
+    <div className="flex flex-col gap-10 w-full max-w-[1500px] mx-auto">
 
       {/* ── Welcome: the week's headline number carries the page ── */}
       <header className="flex flex-col gap-3">

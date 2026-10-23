@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import type { Category } from '../types/Category';
 import type { Task, TaskChanges } from '../types/Task';
 import { categoriesFetch } from '../services/CategoriesFetch';
@@ -9,7 +9,8 @@ import { goalsFetch } from '../../goals/services/GoalsFetch';
 interface TaskDetailModalProps {
     task: Task | null;          // the modal is open while there is a task
     onClose: () => void;
-    onSave: (id: string, changes: TaskChanges) => void;
+    onSave: (id: string, changes: TaskChanges) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
 }
 
 const FIELD = 'w-full px-4 py-3 bg-background rounded-xl text-text-main placeholder:text-secondary/60 outline-none focus:ring-2 focus:ring-accent transition-shadow duration-150';
@@ -21,7 +22,7 @@ const toTimeInput = (iso: string) => {
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
-export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps) {
+export function TaskDetailModal({ task, onClose, onSave, onDelete }: TaskDetailModalProps) {
     const ref = useRef<HTMLDialogElement>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [goals, setGoals] = useState<Goal[]>([]);
@@ -34,6 +35,7 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
     const [finish, setFinish] = useState('');
     const [notes, setNotes] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     useEffect(() => {
         const dialog = ref.current;
@@ -53,6 +55,7 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
         setFinish(toTimeInput(task.finish_hour));
         setNotes(task.notes ?? '');
         setError(null);
+        setConfirmDelete(false);
         categoriesFetch().then(setCategories);
         // active goals, plus the record's current one even if it is already completed or archived
         goalsFetch()
@@ -78,6 +81,19 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
             start_hour: toDate(date, start),
             finish_hour: toDate(date, finish),
             notes: notes.trim(),
+        }).catch((err) => setError(err.message));
+    };
+
+    // first click arms the button, second click deletes
+    const handleDelete = () => {
+        if (!task) return;
+        if (!confirmDelete) {
+            setConfirmDelete(true);
+            return;
+        }
+        onDelete(task.id).catch((err) => {
+            setError(err.message);
+            setConfirmDelete(false);
         });
     };
 
@@ -167,6 +183,16 @@ export function TaskDetailModal({ task, onClose, onSave }: TaskDetailModalProps)
                 </div>
 
                 <div className="flex gap-3 mt-1">
+                    <button type="button" onClick={handleDelete}
+                        onBlur={() => setConfirmDelete(false)}
+                        aria-label={confirmDelete ? 'Confirm delete' : 'Delete task'}
+                        className={`flex items-center justify-center gap-2 py-3.5 px-4 font-semibold rounded-full cursor-pointer
+                                    transition-colors duration-150 ${confirmDelete
+                                        ? 'bg-red-600 text-white hover:bg-red-700'
+                                        : 'bg-hover text-secondary hover:text-red-600'}`}>
+                        <Trash2 className="w-4 h-4" />
+                        {confirmDelete && 'Delete?'}
+                    </button>
                     <button type="button" onClick={onClose}
                         className="flex-1 py-3.5 px-4 bg-hover text-text-main font-semibold rounded-full cursor-pointer
                                    hover:bg-text-main hover:text-background transition-colors duration-150">

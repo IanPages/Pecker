@@ -36,7 +36,7 @@ export function LandingPage() {
   const toggle = (i: number) => setDone((d) => d.map((v, j) => (j === i ? !v : v)));
 
   return (
-    <div className="flex flex-col gap-32 md:gap-44 max-w-[1500px] pb-8">
+    <div className="flex flex-col gap-32 md:gap-44 w-full max-w-[1500px] mx-auto pb-8">
 
       {/* ── Hero ── */}
       <section className="flex flex-col gap-10 pt-6 md:pt-16">

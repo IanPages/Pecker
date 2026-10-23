@@ -62,7 +62,7 @@ export function Goals() {
     };
 
     return (
-        <div className="flex flex-col gap-8 max-w-[1500px]">
+        <div className="flex flex-col gap-8 w-full max-w-[1500px] mx-auto">
             <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-extrabold text-text-main leading-none">Goals</h1>

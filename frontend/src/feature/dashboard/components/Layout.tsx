@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { Home, LogOut, Calendar, Target, Settings, PieChart, Activity, User, Sun, Moon, Menu, X } from 'lucide-react';
+import { Home, LogOut, LogIn, Calendar, Target, Activity, Sun, Moon, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { logoutUser } from '../../auth/services/authApi';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -13,8 +13,10 @@ const NAV_LINKS = [
   { to: '/', icon: Home, label: 'Dashboard' },
   { to: '/schedule', icon: Calendar, label: 'Schedule' },
   { to: '/goals', icon: Target, label: 'Goals' },
-  { to: '/analytics', icon: PieChart, label: 'Analytics' },
 ];
+
+const ICON_BUTTON = 'flex items-center justify-center w-10 h-10 rounded-full bg-transparent border-none cursor-pointer ' +
+  'text-secondary hover:bg-hover hover:text-text-main transition-colors duration-150 no-underline';
 
 export function Layout({ children }: LayoutProps) {
   const [isDark, setIsDark] = useState(() => {
@@ -40,56 +42,120 @@ export function Layout({ children }: LayoutProps) {
     }
   }, [isDark]);
 
-  const handleLogout = async () => {
-    await logoutUser();
-  };
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
+  // nested routes (/goals/:id) keep their section highlighted
+  const isActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
+  const logo = (
+    <Link to="/" className="flex items-center gap-2.5 font-display text-2xl font-extrabold tracking-tight text-text-main no-underline">
+      <Activity className="w-6 h-6 text-accent" />
+      <span>Pecker</span>
+    </Link>
+  );
 
   return (
-    <div className="flex h-screen w-screen bg-background text-text-main overflow-hidden">
+    <div className="flex flex-col h-screen w-screen bg-background text-text-main overflow-hidden">
+
+      {/* ── Desktop header ── */}
+      <header className="max-md:hidden grid grid-cols-[1fr_auto_1fr] items-center px-8 py-3 bg-surface shrink-0">
+        {logo}
+
+        <nav aria-label="Main">
+          <ul className="list-none p-0 m-0 flex items-center gap-1">
+            {NAV_LINKS.map(({ to, icon: Icon, label }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  aria-current={isActive(to) ? 'page' : undefined}
+                  className={[
+                    'flex items-center gap-2 px-4 py-2 rounded-full',
+                    'font-medium text-sm no-underline transition-colors duration-150',
+                    isActive(to)
+                      ? 'bg-text-main text-background'
+                      : 'text-secondary hover:bg-hover hover:text-text-main',
+                  ].join(' ')}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="flex items-center justify-end gap-1">
+          <button
+            onClick={() => setIsDark(!isDark)}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Light mode' : 'Dark mode'}
+            className={ICON_BUTTON}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+          {user ? (
+            <button onClick={() => logoutUser()} aria-label="Log out" title="Log out" className={ICON_BUTTON}>
+              <LogOut className="w-5 h-5" />
+            </button>
+          ) : (
+            <Link to="/login" aria-label="Log in" title="Log in" className={ICON_BUTTON}>
+              <LogIn className="w-5 h-5" />
+            </Link>
+          )}
+        </div>
+      </header>
+
+      {/* ── Mobile top bar ── */}
+      <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-surface shrink-0">
+        <button
+          onClick={() => setIsMenuOpen(true)}
+          className="bg-transparent border-none text-text-main cursor-pointer p-1 rounded-lg hover:bg-hover transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="flex items-center gap-2 font-display text-base font-extrabold text-text-main">
+          <Activity className="w-5 h-5 text-accent" />
+          <span>Pecker</span>
+        </div>
+      </header>
 
       {/* Mobile overlay */}
-      {isSidebarOpen && (
+      {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-[90] md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 z-90 md:hidden"
+          onClick={() => setIsMenuOpen(false)}
         />
       )}
 
-      {/* ── Sidebar ── */}
-      <nav className={[
-        'h-full w-[240px] bg-surface',
-        'flex flex-col p-5 transition-transform duration-300 ease-out shrink-0',
-        // Mobile: slide in/out
-        'max-md:absolute max-md:z-[100]',
-        isSidebarOpen ? 'max-md:translate-x-0 max-md:shadow-[4px_0_24px_rgba(0,0,0,0.25)]' : 'max-md:-translate-x-full',
-      ].join(' ')}>
-
-        {/* Logo */}
+      {/* ── Mobile drawer ── */}
+      <nav
+        aria-label="Main"
+        className={[
+          'md:hidden fixed top-0 left-0 z-100 h-full w-60 bg-surface',
+          'flex flex-col p-5 transition-transform duration-300 ease-out',
+          isMenuOpen ? 'translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.25)]' : '-translate-x-full',
+        ].join(' ')}
+      >
         <div className="flex items-center justify-between mb-10 px-1">
-          <div className="flex items-center gap-2.5 font-display text-2xl font-extrabold tracking-tight text-text-main">
-            <Activity className="w-6 h-6 text-accent" />
-            <span>Pecker</span>
-          </div>
-          {/* Close button — mobile only */}
+          {logo}
           <button
-            className="md:hidden bg-transparent border-none text-text-main cursor-pointer p-1"
-            onClick={() => setIsSidebarOpen(false)}
+            className="bg-transparent border-none text-text-main cursor-pointer p-1"
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Nav links */}
         <ul className="list-none p-0 m-0 flex flex-col gap-1 flex-1">
           {NAV_LINKS.map(({ to, icon: Icon, label }) => (
             <li key={to}>
               <Link
                 to={to}
+                aria-current={isActive(to) ? 'page' : undefined}
                 className={[
                   'flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full',
                   'font-medium text-sm no-underline transition-colors duration-150',
@@ -97,7 +163,7 @@ export function Layout({ children }: LayoutProps) {
                     ? 'bg-text-main text-background'
                     : 'text-secondary hover:bg-hover hover:text-text-main',
                 ].join(' ')}
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={() => setIsMenuOpen(false)}
               >
                 <Icon className="w-5 h-5 shrink-0" />
                 {label}
@@ -106,98 +172,48 @@ export function Layout({ children }: LayoutProps) {
           ))}
         </ul>
 
-        {/* Sidebar footer */}
-        <div className="mt-auto pt-4">
-          <ul className="list-none p-0 m-0 flex flex-col gap-1">
-
-            {/* Theme toggle */}
-            <li
+        <ul className="list-none p-0 m-0 flex flex-col gap-1 pt-4">
+          <li>
+            <button
               onClick={() => setIsDark(!isDark)}
-              className="flex items-center gap-3 px-3.5 py-2.5 rounded-md cursor-pointer
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full bg-transparent border-none cursor-pointer
                          text-sm font-medium text-secondary transition-colors duration-150
                          hover:bg-hover hover:text-text-main"
             >
               {isDark ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
               {isDark ? 'Light Mode' : 'Dark Mode'}
-            </li>
-
-            {/* Settings */}
-            {user && (
-              <li>
-                <Link
-                  to="/settings"
-                  className={[
-                    'flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full',
-                    'font-medium text-sm no-underline transition-colors duration-150',
-                    isActive('/settings')
-                      ? 'bg-text-main text-background'
-                      : 'text-secondary hover:bg-hover hover:text-text-main',
-                  ].join(' ')}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <Settings className="w-5 h-5 shrink-0" />
-                  Settings
-                </Link>
-              </li>
-            )}
-
-            {/* User profile */}
-            <li>
-              <Link
-                to={user ? "/profile" : "/login"}
-                className={[
-                  'flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full',
-                  'font-medium text-sm no-underline transition-colors duration-150',
-                  isActive(user ? "/profile" : "/login")
-                    ? 'bg-text-main text-background'
-                    : 'text-secondary hover:bg-hover hover:text-text-main',
-                ].join(' ')}
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <User className="w-5 h-5 shrink-0" />
-                {user ? 'Profile' : 'Login | Register'}
-              </Link>
-            </li>
-
-            {/* Logged User | Logout */}
-            {user && (
-              <li
+            </button>
+          </li>
+          <li>
+            {user ? (
+              <button
                 onClick={() => logoutUser()}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-md cursor-pointer
-                         text-sm font-medium text-secondary transition-colors duration-150
-                         hover:bg-hover hover:text-text-main"
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full bg-transparent border-none cursor-pointer
+                           text-sm font-medium text-secondary transition-colors duration-150
+                           hover:bg-hover hover:text-text-main"
               >
-                {<LogOut className="w-5 h-5 shrink-0" />}
+                <LogOut className="w-5 h-5 shrink-0" />
                 Logout
-              </li>
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-md w-full no-underline
+                           text-sm font-medium text-secondary transition-colors duration-150
+                           hover:bg-hover hover:text-text-main"
+              >
+                <LogIn className="w-5 h-5 shrink-0" />
+                Login | Register
+              </Link>
             )}
-
-          </ul>
-        </div>
+          </li>
+        </ul>
       </nav>
 
-      {/* ── Main content ── */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Mobile top bar — hamburger button */}
-        <div className="md:hidden flex items-center gap-3 px-4 py-3 bg-surface shrink-0">
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="bg-transparent border-none text-text-main cursor-pointer p-1 rounded-lg hover:bg-hover transition-colors"
-            aria-label="Open menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-2 font-display text-base font-extrabold text-text-main">
-            <Activity className="w-5 h-5 text-accent" />
-            <span>Pecker</span>
-          </div>
-        </div>
-
-        {/* Page content */}
-        <div className="flex-1 px-5 py-6 md:px-10 md:py-8 overflow-y-auto">
-          {children}
-        </div>
+      {/* ── Page content ── */}
+      <main className="flex-1 px-5 py-6 md:px-10 md:py-8 overflow-y-auto">
+        {children}
       </main>
     </div>
   );

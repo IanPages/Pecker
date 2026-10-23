@@ -7,6 +7,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { TaskModal } from './TaskModal';
 import { TaskDetailModal } from './TaskDetailModal';
 import { updateTask } from '../services/UpdateTask';
+import { deleteTask } from '../services/DeleteTask';
 
 // Below lg the week keeps readable columns (96px) and scrolls sideways instead of squeezing 7 days into the screen
 const COL_W = 96;
@@ -238,14 +239,16 @@ export function Calendar() {
             <TaskDetailModal
                 task={selectedTask}
                 onClose={() => setSelectedTask(null)}
-                onSave={async (_id, _changes) => {
-                    try {
-                        await updateTask(_id, _changes);
-                        await loadTasks();
-                        setSelectedTask(null);
-                    } catch (err) {
-                        console.error(err);
-                    }
+                // errors bubble up so the modal can show them
+                onSave={async (id, changes) => {
+                    await updateTask(id, changes);
+                    await loadTasks();
+                    setSelectedTask(null);
+                }}
+                onDelete={async (id) => {
+                    await deleteTask(id);
+                    await loadTasks();
+                    setSelectedTask(null);
                 }}
             />
             <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={loadTasks} />
