@@ -1,4 +1,4 @@
-from dns.rdtypes.ANY import HINFO
+
 from pydantic import BaseModel, Field, field_validator
 from datetime import date as Date, datetime
 from typing import Optional
@@ -33,13 +33,13 @@ class RecordResponse(RecordCreate):
         from_attributes = True
 
 class RecordUpdate(BaseModel):
-    name: Optional[str]
-    category_id: Optional[UUID]
+    name: Optional[str]=Field(default=None,min_length=1,max_length=120)
+    category_id: Optional[UUID]= None
     goal_id: Optional[UUID]=None
-    date: Optional[Date]
-    start_hour: Optional[datetime]
-    finish_hour: Optional[datetime]
-    notes: Optional[str]
+    date: Optional[Date]= None
+    start_hour: Optional[datetime]= None
+    finish_hour: Optional[datetime]= None
+    notes: Optional[str]= None
 
     @field_validator("finish_hour")
     @classmethod

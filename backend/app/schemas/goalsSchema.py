@@ -16,12 +16,12 @@ class GoalCreate(BaseModel):
     @model_validator(mode="after")
     def validate_dates(self):
         """Garantiza que el deadline no sea anterior a la fecha de inicio"""
-        if self.deadline and self.deadline < self.start_date:
-            raise ValueError("deadline no puede ser anterior a start_date")
+        if self.deadline and self.deadline <= self.start_date:
+            raise ValueError("deadline no puede ser anterior o igual a start_date")
         return self
 
 class GoalUpdate(BaseModel):
-    name: Optional[str]=Field(default=None,min_length=1,max_length=120)
+    name: Optional[str]=Field(default=None,min_length=1,max_length=255)
     description: Optional[str]=None
     target_minutes: Optional[int]=Field(default=None,gt=0)
     category_id: Optional[UUID]=None
