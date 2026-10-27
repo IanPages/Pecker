@@ -3,7 +3,7 @@ import os
 os.environ.setdefault("SUPABASE_URL", "http://localhost:54321")
 os.environ.setdefault("SUPABASE_KEY", "fake-key-donette")
 
-import pytest_lazyfixture
+import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.auth import get_current_user
@@ -18,7 +18,7 @@ class FakeQuery:
         self.calls = []
 
     def __getattr__(self,method):
-        def chain(*arg, **kwargs):
+        def chain(*args, **kwargs):
             self.calls.append((method,args))
             return self
         return chain
@@ -31,7 +31,7 @@ class FakeSupabase:
         self.queries= []
 
     def table(self, name):
-        query= FakeQuery(name, self.tbales.get(name,[]))
+        query= FakeQuery(name, self.tables.get(name,[]))
         self.queries.append(query)
         return query
     
@@ -41,4 +41,10 @@ def fake_db(monkeypatch):
     db = FakeSupabase()
     for router in ("goals","records","categories"):
         monkeypatch.setattr(f"app.routers.{router}.supabase",db)
-        return db
+    return db
+@pytest.fixture
+def client(fake_db):
+    app.dependency_overrides[get_current_user]= lambda: FAKE_USER
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+    
