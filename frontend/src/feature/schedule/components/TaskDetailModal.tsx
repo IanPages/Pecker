@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Trash2, X } from 'lucide-react';
+import { Loader2, Trash2, X } from 'lucide-react';
 import type { Category } from '../types/Category';
 import type { Task, TaskChanges } from '../types/Task';
 import { categoriesFetch } from '../services/CategoriesFetch';
@@ -36,6 +36,7 @@ export function TaskDetailModal({ task, onClose, onSave, onDelete }: TaskDetailM
     const [notes, setNotes] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         const dialog = ref.current;
@@ -56,6 +57,7 @@ export function TaskDetailModal({ task, onClose, onSave, onDelete }: TaskDetailM
         setNotes(task.notes ?? '');
         setError(null);
         setConfirmDelete(false);
+        setDeleting(false);
         categoriesFetch().then(setCategories);
         // active goals, plus the record's current one even if it is already completed or archived
         goalsFetch()
@@ -86,14 +88,16 @@ export function TaskDetailModal({ task, onClose, onSave, onDelete }: TaskDetailM
 
     // first click arms the button, second click deletes
     const handleDelete = () => {
-        if (!task) return;
+        if (!task || deleting) return;
         if (!confirmDelete) {
             setConfirmDelete(true);
             return;
         }
+        setDeleting(true);
         onDelete(task.id).catch((err) => {
             setError(err.message);
             setConfirmDelete(false);
+            setDeleting(false);
         });
     };
 
@@ -184,23 +188,28 @@ export function TaskDetailModal({ task, onClose, onSave, onDelete }: TaskDetailM
 
                 <div className="flex gap-3 mt-1">
                     <button type="button" onClick={handleDelete}
-                        onBlur={() => setConfirmDelete(false)}
-                        aria-label={confirmDelete ? 'Confirm delete' : 'Delete task'}
+                        onBlur={() => { if (!deleting) setConfirmDelete(false); }}
+                        disabled={deleting}
+                        aria-busy={deleting}
+                        aria-label={deleting ? 'Deleting task' : confirmDelete ? 'Confirm delete' : 'Delete task'}
                         className={`flex items-center justify-center gap-2 py-3.5 px-4 font-semibold rounded-full cursor-pointer
+                                    disabled:cursor-wait disabled:opacity-80
                                     transition-colors duration-150 ${confirmDelete
                                         ? 'bg-red-600 text-white hover:bg-red-700'
                                         : 'bg-hover text-secondary hover:text-red-600'}`}>
-                        <Trash2 className="w-4 h-4" />
-                        {confirmDelete && 'Delete?'}
+                        {deleting
+                            ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" />
+                            : <Trash2 className="w-4 h-4" />}
+                        {deleting ? 'Deleting…' : confirmDelete && 'Delete?'}
                     </button>
                     <button type="button" onClick={onClose}
                         className="flex-1 py-3.5 px-4 bg-hover text-text-main font-semibold rounded-full cursor-pointer
                                    hover:bg-text-main hover:text-background transition-colors duration-150">
                         Cancel
                     </button>
-                    <button type="submit"
+                    <button type="submit" disabled={deleting}
                         className="flex-1 py-3.5 px-4 bg-accent text-accent-text font-semibold rounded-full cursor-pointer
-                                   hover:brightness-110 transition-[filter] duration-150">
+                                   hover:brightness-110 transition-[filter] duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                         Save changes
                     </button>
                 </div>

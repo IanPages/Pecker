@@ -1,3 +1,4 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { Task } from "../../schedule/types/Task";
 import type { Goal } from "../types/Goal";
@@ -13,8 +14,8 @@ async function getJSON<T>(url: string, fallback: string): Promise<T> {
 }
 
 export const goalFetch = (id: string) =>
-    getJSON<Goal>(`http://localhost:8080/goals/${id}`, "There was an error loading this goal.")
+    getJSON<Goal>(`${API_URL}/goals/${id}`, "There was an error loading this goal.")
 
 // newest first, with the category embedded
 export const goalRecordsFetch = (id: string) =>
-    getJSON<Task[]>(`http://localhost:8080/goals/${id}/records`, "There was an error loading this goal's sessions.")
+    getJSON<Task[]>(`${API_URL}/goals/${id}/records`, "There was an error loading this goal's sessions.")

@@ -1,9 +1,10 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { TaskChanges } from "../types/Task";
 
 
 export async function updateTask(id: string, updateTask: TaskChanges) {
-    const response = await fetch(`http://localhost:8080/records/${id}`,{
+    const response = await fetch(`${API_URL}/records/${id}`,{
         method: 'PUT',
         headers: await authHeaders(),
         body: JSON.stringify(updateTask)

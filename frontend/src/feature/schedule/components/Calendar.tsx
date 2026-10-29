@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Tag } from 'lucide-react';
 import type { Task } from '../types/Task';
 import { HOUR_H, HOURS, getWeekStart, getWeekDays, isoToHours, fmtHours, readableTextColor } from '../utils/calendarUtils';
 import { weeklyFetch } from '../services/CalendarWeeklyFetch';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { TaskModal } from './TaskModal';
 import { TaskDetailModal } from './TaskDetailModal';
+import { CategoryModal } from './CategoryModal';
 import { updateTask } from '../services/UpdateTask';
 import { deleteTask } from '../services/DeleteTask';
 
@@ -20,8 +21,12 @@ export function Calendar() {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [weekOffset, setWeekOffset] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const lastRequest = useRef(0);
     const { user } = useAuth()
+    // Only hides the button: the backend is what actually blocks non admins (403)
+    const isAdmin = user?.app_metadata?.role === 'admin';
 
     // Derived from weekOffset – recalculates on every change
     const weekStart = getWeekStart(weekOffset);
@@ -43,22 +48,27 @@ export function Calendar() {
 
     // On narrow screens, bring today's column into view (no-op when the whole week fits)
     useEffect(() => {
-        const todayIdx = weekDays.findIndex(d => d.isToday);
+        const todayIdx = getWeekDays(getWeekStart(weekOffset)).findIndex(d => d.isToday);
         if (scrollRef.current && todayIdx > 0) {
             scrollRef.current.scrollLeft = todayIdx * COL_W;
         }
     }, [weekOffset]);
 
-    const loadTasks = () => {
+    const loadTasks = useCallback(() => {
         if (!user?.id) return Promise.resolve(); // wait for the session before asking the API
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-        return weeklyFetch(weekStart, weekEnd).then(setTasks);
-    };
+        const start = getWeekStart(weekOffset);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        // Fast week switching: a slower old response must not overwrite the newer week
+        const request = ++lastRequest.current;
+        return weeklyFetch(start, end).then(data => {
+            if (request === lastRequest.current) setTasks(data);
+        });
+    }, [weekOffset, user?.id]);
 
     useEffect(() => {
         loadTasks();
-    }, [weekOffset, user?.id])
+    }, [loadTasks])
 
     const handleSelect = (task: Task) =>
         setSelectedTask(task);
@@ -96,6 +106,17 @@ export function Calendar() {
                             <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
+
+                    {/* Add category (admin only) */}
+                    {isAdmin && (
+                        <button onClick={() => setIsCategoryModalOpen(true)} aria-label="Add category" className="flex items-center gap-2 bg-surface text-text-main border-none
+                                 px-3.5 sm:px-5 py-2.5 rounded-full font-semibold text-sm cursor-pointer
+                                 transition-colors duration-150 hover:bg-hover"
+                                 >
+                            <Tag className="w-4 h-4" />
+                            <span className="hidden sm:inline">Add Category</span>
+                        </button>
+                    )}
 
                     {/* Add task */}
                     <button onClick={() => setIsModalOpen(true)} aria-label="Add task" className="flex items-center gap-2 bg-accent text-accent-text border-none
@@ -252,6 +273,7 @@ export function Calendar() {
                 }}
             />
             <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onCreated={loadTasks} />
+            {isAdmin && <CategoryModal open={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} />}
         </div>
     );
 }

@@ -1,7 +1,8 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 
 export async function deleteGoal(id: string): Promise<void> {
-    const response = await fetch(`http://localhost:8080/goals/${id}`, {
+    const response = await fetch(`${API_URL}/goals/${id}`, {
         method: "DELETE",
         headers: await authHeaders()
     })

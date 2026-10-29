@@ -1,9 +1,10 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { RecentRecord } from "../types/RecentRecord";
 
 
 export async function recentRecordsFetch(): Promise<RecentRecord[]> {
-    const response= await fetch(`http://localhost:8080/records/recent`, {
+    const response= await fetch(`${API_URL}/records/recent`, {
         method: "GET",
         headers: await authHeaders()
     })

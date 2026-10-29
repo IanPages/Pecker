@@ -1,8 +1,9 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { GoalChanges } from "../types/Goal";
 
 export async function updateGoal(id: string, changes: GoalChanges): Promise<void> {
-    const response = await fetch(`http://localhost:8080/goals/${id}`, {
+    const response = await fetch(`${API_URL}/goals/${id}`, {
         method: "PUT",
         headers: await authHeaders(),
         body: JSON.stringify(changes)

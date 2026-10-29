@@ -1,10 +1,11 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import { toLocalISODate } from "../../schedule/utils/calendarUtils";
 import type { DashboardStats } from "../types/Dashboard";
 
 
 export async function dashboardStatsFetch(): Promise<DashboardStats> {
-    const response = await fetch(`http://localhost:8080/records/stats?today=${toLocalISODate(new Date())}`, {
+    const response = await fetch(`${API_URL}/records/stats?today=${toLocalISODate(new Date())}`, {
         method: "GET",
         headers: await authHeaders()
     })

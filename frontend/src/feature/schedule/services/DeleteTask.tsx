@@ -1,7 +1,8 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 
 export async function deleteTask(id: string) {
-    const response = await fetch(`http://localhost:8080/records/${id}`, {
+    const response = await fetch(`${API_URL}/records/${id}`, {
         method: 'DELETE',
         headers: await authHeaders()
     });

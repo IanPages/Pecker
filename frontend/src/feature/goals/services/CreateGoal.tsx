@@ -1,8 +1,9 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { CreateGoal } from "../types/Goal";
 
 export async function createGoalRequest(goal: CreateGoal): Promise<void> {
-    const response = await fetch("http://localhost:8080/goals/", {
+    const response = await fetch(`${API_URL}/goals/`, {
         method: "POST",
         headers: await authHeaders(),
         body: JSON.stringify(goal)

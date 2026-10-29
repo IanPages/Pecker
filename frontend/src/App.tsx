@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './feature/dashboard/components/Layout';
-import { Dashboard } from './feature/dashboard/components/Dashboard';
 import { Schedule } from './feature/schedule/components/Schedule';
 import { Goals } from './feature/goals/components/Goals';
 import { GoalDetail } from './feature/goals/components/GoalDetail';

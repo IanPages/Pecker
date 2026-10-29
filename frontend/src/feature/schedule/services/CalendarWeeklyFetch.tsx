@@ -1,3 +1,4 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import { toLocalISODate } from "../utils/calendarUtils";
 import type { Task } from "../types/Task";
@@ -5,7 +6,7 @@ import type { Task } from "../types/Task";
 
 export async function weeklyFetch(startDate: Date, endDate: Date): Promise<Task[]> {
 
-    const response = await fetch(`http://localhost:8080/records/weekly/${toLocalISODate(startDate)}/${toLocalISODate(endDate)}`, {
+    const response = await fetch(`${API_URL}/records/weekly/${toLocalISODate(startDate)}/${toLocalISODate(endDate)}`, {
         method: "GET",
         headers: await authHeaders()
     })

@@ -1,8 +1,9 @@
+import { API_URL } from "../../../config";
 import { authHeaders } from "../../auth/services/authHeaders";
 import type { createTask } from "../types/Task";
 
 export async function createTaskRequest(task: createTask): Promise<void> {
-    const response = await fetch("http://localhost:8080/records/", {
+    const response = await fetch(`${API_URL}/records/`, {
         method: "POST",
         headers: await authHeaders(),
         body: JSON.stringify(task) // Date -> ISO string

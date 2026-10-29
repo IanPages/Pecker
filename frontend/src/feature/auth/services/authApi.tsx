@@ -1,4 +1,4 @@
-import type { RegUser, LogUser } from "../types/authUsers"
+
 import { supabase } from "./supabase"
 
 export async function registerUser(email: string, password: string, username: string) {
