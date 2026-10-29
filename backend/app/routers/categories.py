@@ -7,10 +7,13 @@ from uuid import UUID
 
 from app.db.supabase import supabase
 from app.schemas.categoriesSchema import CategoryCreate,CategoryUpdate
+from app.core.auth import get_current_user, get_admin_user
 
 router = APIRouter(
     prefix="/categories",
-    tags=["Categories"]
+    tags=["Categories"],
+    # Leer requiere login; escribir requiere admin (ver endpoints)
+    dependencies=[Depends(get_current_user)]
 )
 
 @router.get("/", response_model=List[dict])
@@ -32,7 +35,7 @@ async def list_category_by_id(id:UUID):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No category found")
     return response.data
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(get_admin_user)])
 async def create_category(category_data: CategoryCreate):
 
     category_data.created_at = datetime.now()
@@ -47,7 +50,7 @@ async def create_category(category_data: CategoryCreate):
     
     return {"message": "Category created successfully", "data": response.data}
 
-@router.put("/{id}",response_model=dict)
+@router.put("/{id}",response_model=dict, dependencies=[Depends(get_admin_user)])
 async def update_category(id:UUID, category_data: CategoryUpdate):
     json_schema = category_data.model_dump(mode="json", exclude_unset=True)
 
@@ -62,7 +65,7 @@ async def update_category(id:UUID, category_data: CategoryUpdate):
     return {"message": "Category updated successfully", "data": response.data}
 
 
-@router.delete("/{id}",response_model=dict)
+@router.delete("/{id}",response_model=dict, dependencies=[Depends(get_admin_user)])
 async def delete_category(id:UUID):
     query = supabase.table("categories").delete().eq("id", id)
     response = query.execute()

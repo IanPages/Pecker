@@ -123,8 +123,8 @@ async def get_recent_records(limit: int = Query(5, ge=1, le=50), user: dict = De
     return response.data  # an empty list is fine here, unlike the 404s above
 
 @router.get("/{id}", response_model=List[dict])
-async def get_record_by_id(id: UUID):
-    query = supabase.table("records").select("*").eq("id", id)
+async def get_record_by_id(id: UUID, user: dict = Depends(get_current_user)):
+    query = supabase.table("records").select("*").eq("id", id).eq("user_id", user["id"])
     response = query.execute()
 
     if not response.data:
@@ -159,14 +159,14 @@ async def update_record(id: UUID, record_data: RecordUpdate, user: dict = Depend
 
     if "start_hour" in json_schema or "finish_hour" in json_schema:
         # the update may carry only one of the two hours, so fill the other from the stored record
-        current = supabase.table("records").select("start_hour,finish_hour").eq("id", id).execute().data
+        current = supabase.table("records").select("start_hour,finish_hour").eq("id", id).eq("user_id", user["id"]).execute().data
         if not current:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No record found")
         start = json_schema.get("start_hour", current[0]["start_hour"])
         finish = json_schema.get("finish_hour", current[0]["finish_hour"])
         ensure_no_overlap(start, finish, user["id"], exclude_id=id)
 
-    query = supabase.table("records").update(json_schema).eq("id", id)
+    query = supabase.table("records").update(json_schema).eq("id", id).eq("user_id", user["id"])
     response = query.execute()
 
     if not response.data:

@@ -27,7 +27,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         
         return {
             "id": user_response.user.id,
-            "email": user_response.user.email
+            "email": user_response.user.email,
+            # app_metadata only editable with the service role, users can't promote themselves
+            "role": (user_response.user.app_metadata or {}).get("role")
             #TODO: Include the other user info when frontend is ready.
         }
     except Exception as e:
@@ -35,3 +37,14 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Error al validar usuario: {str(e)}"
         )
+
+def get_admin_user(user: dict = Depends(get_current_user)) -> dict:
+    """
+    Solo deja pasar a usuarios con app_metadata.role == "admin".
+    """
+    if user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo un administrador puede realizar esta acción"
+        )
+    return user
